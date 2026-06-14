@@ -28,21 +28,21 @@ class ProjectPicker(Widget):
         width: 28;
         height: 1;
         background: transparent;
-        border: solid $primary;
-        color: $text;
+        border: none;
+        color: #eeeeee;
         text-align: left;
         padding: 0 1;
     }
     #project-trigger:hover {
-        background: $surface-lighten-1;
+        background: #2a2a2a;
     }
 
     #project-dropdown {
         width: 40;
         height: auto;
         display: none;
-        background: $surface;
-        border: solid $primary;
+        background: #0a0a0a;
+        border: none;
         padding: 0;
     }
     #project-dropdown.open {
@@ -52,10 +52,10 @@ class ProjectPicker(Widget):
     #project-search-input {
         width: 100%;
         height: 3;
-        background: $surface-darken-1;
+        background: #1e1e1e;
         border: none;
-        border-bottom: solid $surface-lighten-1;
-        color: $text;
+        border-bottom: solid #2a2a2a;
+        color: #eeeeee;
         padding: 0 1;
     }
 
@@ -71,18 +71,18 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: $text;
+        color: #eeeeee;
         text-align: left;
         padding: 0 1;
     }
     #project-list-scroll Button:hover {
-        background: $surface-lighten-1;
+        background: #2a2a2a;
     }
 
     #project-dropdown-divider {
         width: 100%;
         height: 1;
-        border-top: solid $surface-lighten-1;
+        border-top: solid #2a2a2a;
     }
 
     #project-bottom-actions {
@@ -94,13 +94,13 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: $text-muted;
+        color: #808080;
         text-align: left;
         padding: 0 1;
     }
     #project-bottom-actions Button:hover {
-        background: $surface-lighten-1;
-        color: $text;
+        background: #2a2a2a;
+        color: #eeeeee;
     }
     """
 

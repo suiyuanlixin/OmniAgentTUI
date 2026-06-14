@@ -18,15 +18,15 @@ class SettingsModal(ModalScreen[None]):
     SettingsModal > Container {
         width: 50;
         height: 20;
-        background: $surface;
-        border: solid $primary;
+        background: #141414;
+        border: none;
     }
 
     #settings-header {
         width: 100%;
         height: 1;
-        background: $primary;
-        color: $text;
+        background: #1e1e1e;
+        color: #eeeeee;
     }
 
     #settings-title {
@@ -40,11 +40,11 @@ class SettingsModal(ModalScreen[None]):
         height: 1;
         background: transparent;
         border: none;
-        color: $text;
+        color: #eeeeee;
         dock: right;
     }
     #settings-close-btn:hover {
-        background: $primary-lighten-1;
+        background: #2a2a2a;
     }
 
     #settings-body {

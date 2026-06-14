@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import Button, Label, Tree
+from textual.widgets import Button, Label, Tree, Static
 
-from agent_tui.data import PROJECT_NAME
+from agent_tui.data import PROJECT_NAME, PROJECT_LOGO
 from agent_tui.widgets.sidebar import Sidebar
 from agent_tui.widgets.chat_input import ChatInput
 from agent_tui.widgets.chat_view import ChatView
@@ -18,24 +18,29 @@ class AgentTUIApp(App):
 
     CSS = """
     Screen {
-        background: $surface;
+        background: #0a0a0a;
+        color: #eeeeee;
     }
 
     #top-bar {
         height: 1;
         dock: top;
-        background: $surface-darken-1;
+        background: #0a0a0a;
+        padding: 0 1;
     }
 
     #sidebar-toggle {
         width: 3;
         min-width: 3;
+        height: 1;
         border: none;
         background: transparent;
-        color: $text;
+        color: #eeeeee;
+        padding: 0;
+        content-align: center middle;
     }
     #sidebar-toggle:hover {
-        background: $surface-lighten-1;
+        background: #2a2a2a;
     }
 
     #main-area {
@@ -44,9 +49,11 @@ class AgentTUIApp(App):
     }
 
     #welcome-area {
-        height: 1fr;
+        height: auto;
         content-align: center middle;
         display: block;
+        background: #0a0a0a;
+        padding-bottom: 2;
     }
     #welcome-area.hidden {
         display: none;
@@ -55,24 +62,29 @@ class AgentTUIApp(App):
     #project-title {
         width: 100%;
         text-align: center;
-        text-style: bold;
-        color: $accent;
-        padding-bottom: 2;
     }
 
     #messages-view {
         display: none;
         height: 1fr;
+        background: #0a0a0a;
     }
     #messages-view.visible {
         display: block;
     }
 
+    #input-wrapper {
+        height: auto;
+        align: center middle;
+    }
+    #input-wrapper.welcome {
+        height: 1fr;
+    }
+
     #bottom-area {
         dock: bottom;
         height: auto;
-        background: $surface;
-        border-top: solid $surface-darken-1;
+        background: #0a0a0a;
         padding: 0 1;
     }
 
@@ -82,9 +94,9 @@ class AgentTUIApp(App):
 
     #context-label {
         text-align: right;
-        color: $text-muted;
+        color: #808080;
         padding-right: 1;
-        padding-top: 1;
+        height: 1;
     }
     """
 
@@ -102,11 +114,12 @@ class AgentTUIApp(App):
                 yield Button("\u2630", id="sidebar-toggle")
 
             with Container(id="welcome-area"):
-                yield Label(PROJECT_NAME, id="project-title")
+                yield Static(PROJECT_LOGO, id="project-title")
 
             yield ChatView(id="messages-view")
 
-            yield ChatInput(id="chat-input")
+            with Container(id="input-wrapper", classes="welcome"):
+                yield ChatInput(id="chat-input")
 
             with Container(id="bottom-area"):
                 with Horizontal(id="bottom-bar"):
@@ -167,13 +180,20 @@ class AgentTUIApp(App):
         welcome = self.query_one("#welcome-area", Container)
         messages = self.query_one("#messages-view", ChatView)
         chat_input = self.query_one("#chat-input", ChatInput)
+        input_wrapper = self.query_one("#input-wrapper", Container)
         chat_input.chat_active = False
+        chat_input.remove_class("stretch")
         welcome.remove_class("hidden")
         messages.remove_class("visible")
         messages.clear()
+        input_wrapper.add_class("welcome")
 
     def start_chat(self) -> None:
         welcome = self.query_one("#welcome-area", Container)
         messages = self.query_one("#messages-view", ChatView)
+        input_wrapper = self.query_one("#input-wrapper", Container)
+        chat_input = self.query_one("#chat-input", ChatInput)
         welcome.add_class("hidden")
         messages.add_class("visible")
+        input_wrapper.remove_class("welcome")
+        chat_input.add_class("stretch")

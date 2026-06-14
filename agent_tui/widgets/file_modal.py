@@ -17,8 +17,8 @@ class FileInputModal(ModalScreen[str | None]):
     FileInputModal > Container {
         width: 50;
         height: auto;
-        background: $surface;
-        border: solid $primary;
+        background: #141414;
+        border: none;
         padding: 1 2;
     }
 
@@ -42,8 +42,8 @@ class FileInputModal(ModalScreen[str | None]):
     FileInputModal #file-submit-btn {
         width: 10;
         margin-right: 1;
-        background: $primary;
-        color: $text;
+        background: transparent;
+        color: #fab283;
         border: none;
     }
 

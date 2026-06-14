@@ -15,13 +15,13 @@ class ChatView(Widget):
     ChatView {
         width: 100%;
         height: 1fr;
-        background: $surface;
+        background: #0a0a0a;
     }
 
     ChatView #chat-log {
         width: 100%;
         height: 1fr;
-        background: $surface;
+        background: #0a0a0a;
         border: none;
         padding: 0 1;
     }

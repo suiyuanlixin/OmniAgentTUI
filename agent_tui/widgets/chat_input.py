@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Container
-from textual.widgets import Button, Input, Static, Select
+from textual.containers import Horizontal, Vertical, Container
+from textual.widgets import Button, Input, Static
 from textual.widget import Widget
 from textual.message import Message
 from textual.reactive import reactive
@@ -15,111 +15,146 @@ class ChatInput(Widget):
 
     DEFAULT_CSS = """
     ChatInput {
+        width: 75;
+        height: auto;
+        padding: 1 0;
+        background: #0a0a0a;
+    }
+    ChatInput.stretch {
+        width: 100%;
+    }
+
+    ChatInput > #input-area {
         width: 100%;
         height: auto;
+        background: #1e1e1e;
+        border-left: tall #fab283;
         padding: 1;
-        background: $surface;
-        border-top: solid $panel;
     }
 
-    ChatInput > #input-row {
+    #message-row {
         width: 100%;
         height: auto;
-        align-horizontal: center;
-        align-vertical: middle;
+        padding-bottom: 1;
     }
 
-    ChatInput Button {
-        min-width: 3;
-        height: 3;
-        margin: 0 1 0 0;
-        border: none;
-        background: transparent;
-        color: $text;
-    }
-    ChatInput Button:hover {
-        background: $surface-lighten-1;
-    }
-
-    #attach-btn {
-        width: 6;
-        background: $surface-darken-1;
-        border: solid $primary;
-        color: $primary;
-    }
-    #attach-btn:hover {
-        background: $surface-lighten-1;
-        color: $text;
-    }
-
-    #plan-build-group {
-        width: auto;
-        height: 3;
-        border: solid $primary;
-        margin: 0 1 0 0;
-    }
-    #plan-build-group Button {
-        width: 8;
-        height: 3;
-        border: none;
-        background: transparent;
-        color: $text-muted;
-        margin: 0;
-    }
-    #plan-build-group Button.active {
-        background: $primary;
-        color: $text;
-    }
-
-    #approval-select {
-        width: 22;
-        height: 3;
-        margin: 0 1 0 0;
-    }
-    #approval-select.hidden {
-        display: none;
+    #controls-row {
+        width: 100%;
+        height: auto;
+        align-horizontal: left;
+        overflow: hidden;
     }
 
     #message-input {
-        width: 1fr;
-        min-width: 10;
-        height: 3;
-        margin: 0 1 0 0;
-        border: solid $primary;
-        background: $surface-darken-1;
-        color: $text;
-        padding: 0 1;
+        width: 100%;
+        height: 1;
+        border: none;
+        background: transparent;
+        color: #eeeeee;
     }
 
-    #model-select {
-        width: 24;
-        height: 3;
+    #input-area Button {
+        min-width: 1;
+        height: 1;
         margin: 0 1 0 0;
+        border: none;
+        background: transparent;
+        color: #808080;
+        padding: 0;
     }
-
-    #thinking-select {
-        width: 12;
-        height: 3;
-        margin: 0 1 0 0;
-    }
-
-    #send-btn {
-        width: 6;
-        height: 3;
-        margin: 0;
-        background: $primary;
-        color: $text;
+    #input-area Button:focus {
         border: none;
     }
-    #send-btn:hover {
-        background: $primary-lighten-1;
+    #input-area Button:hover {
+        border: none;
+        border-top: none;
+        border-bottom: none;
+        background: #2a2a2a;
+        color: #eeeeee;
+    }
+
+    #attach-btn {
+        width: 1;
+        min-width: 1;
+        background: transparent;
+        border: none;
+        color: #808080;
+        margin: 0 1 0 0;
+        padding: 0;
+        content-align: center middle;
+    }
+    #attach-btn:focus {
+        border: none;
+    }
+    #attach-btn:hover {
+        border: none;
+        border-top: none;
+        border-bottom: none;
+        background: transparent;
+        color: #eeeeee;
+    }
+
+    /* dropdown wrappers */
+    #plan-drop, #approval-drop, #model-drop, #thinking-drop {
+        width: auto;
+        height: 1;
+        margin: 0 1 0 0;
+    }
+    #approval-drop.hidden {
+        display: none;
+    }
+
+    /* dropdown triggers */
+    #plan-trigger, #approval-trigger, #model-trigger, #thinking-trigger {
+        width: auto;
+        height: 1;
+        background: transparent;
+        border: none;
+        color: #808080;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* dropdown option panels */
+    #plan-options, #approval-options, #model-options, #thinking-options {
+        display: none;
+        width: auto;
+        min-width: 16;
+        height: auto;
+        background: #141414;
+        border: none;
+        padding: 0;
+        overlay: screen;
+        constrain: none inside;
+    }
+    #plan-options.open, #approval-options.open, #model-options.open, #thinking-options.open {
+        display: block;
+    }
+
+    #plan-options Button, #approval-options Button, #model-options Button, #thinking-options Button {
+        width: 100%;
+        height: 1;
+        background: transparent;
+        border: none;
+        color: #eeeeee;
+        text-align: left;
+        padding: 0 3;
+        margin: 0;
+    }
+    #plan-options Button:hover, #approval-options Button:hover, #model-options Button:hover, #thinking-options Button:hover {
+        border: none;
+        border-top: none;
+        border-bottom: none;
+        background: #fab283;
+        color: #0a0a0a;
     }
 
     #attached-files {
         width: 100%;
         height: auto;
-        padding: 0 0 1 0;
-        color: $text-muted;
+        padding: 0 0 0 4;
+        color: #808080;
+        background: #0a0a0a;
     }
     #attached-files.hidden {
         display: none;
@@ -140,62 +175,103 @@ class ChatInput(Widget):
             self.content = content
 
     def compose(self) -> ComposeResult:
-        with Horizontal(id="input-row"):
-            yield Button("+", id="attach-btn")
+        with Vertical(id="input-area"):
+            with Horizontal(id="message-row"):
+                yield Input(
+                    placeholder="Type a message...",
+                    id="message-input",
+                )
 
-            with Horizontal(id="plan-build-group"):
-                yield Button("Plan", id="plan-btn", classes="active")
-                yield Button("Build", id="build-btn")
+            with Horizontal(id="controls-row"):
+                yield Button("+", id="attach-btn")
 
-            yield Select(
-                APPROVAL_LEVELS,
-                id="approval-select",
-                prompt="Ask for approval",
-                value="ask",
-                allow_blank=False,
-            )
+                # Plan/Build toggle dropdown
+                with Container(id="plan-drop"):
+                    yield Button("Plan", id="plan-trigger")
+                    with Container(id="plan-options"):
+                        yield Button("Plan", id="plan-opt-plan")
+                        yield Button("Build", id="plan-opt-build")
 
-            yield Input(
-                placeholder="Type a message...",
-                id="message-input",
-            )
+                # Approval dropdown
+                with Container(id="approval-drop"):
+                    yield Button("Ask for approval", id="approval-trigger")
+                    with Container(id="approval-options"):
+                        for label, value in APPROVAL_LEVELS:
+                            yield Button(label, id=f"approval-{value}")
 
-            yield Select(
-                MODELS,
-                id="model-select",
-                prompt="Model",
-                value="claude-3.5-sonnet",
-                allow_blank=False,
-            )
+                # Model dropdown
+                with Container(id="model-drop"):
+                    yield Button("Claude 3.5 Sonnet", id="model-trigger")
+                    with Container(id="model-options"):
+                        for label, value in MODELS:
+                            sid = value.replace(".", "-")
+                            yield Button(label, id=f"model-{sid}")
 
-            yield Select(
-                THINKING_LEVELS,
-                id="thinking-select",
-                prompt="Thinking",
-                value="medium",
-                allow_blank=False,
-            )
-
-            yield Button("\u2192", id="send-btn")
+                # Thinking dropdown
+                with Container(id="thinking-drop"):
+                    yield Button("Medium", id="thinking-trigger")
+                    with Container(id="thinking-options"):
+                        for label, value in THINKING_LEVELS:
+                            yield Button(label, id=f"thinking-{value}")
 
         with Container(id="attached-files", classes="hidden"):
             yield Static("", id="attached-files-label")
-
-    def add_attached_file(self, path: str) -> None:
-        container = self.query_one("#attached-files", Container)
-        label = self.query_one("#attached-files-label", Static)
-        container.remove_class("hidden")
-        label.update(f"  Attached: {path}")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
         if btn_id == "attach-btn":
             self.post_message(self.FileAttached(""))
-        elif btn_id == "plan-btn":
-            self.plan_mode = True
-        elif btn_id == "build-btn":
-            self.plan_mode = False
-        elif btn_id == "send-btn":
+        elif btn_id == "plan-opt-plan":
+            self._set_plan_mode(True)
+        elif btn_id == "plan-opt-build":
+            self._set_plan_mode(False)
+
+        elif btn_id == "plan-trigger":
+            self._toggle_dropdown("plan-options")
+        elif btn_id == "approval-trigger":
+            self._toggle_dropdown("approval-options")
+        elif btn_id == "model-trigger":
+            self._toggle_dropdown("model-options")
+        elif btn_id == "thinking-trigger":
+            self._toggle_dropdown("thinking-options")
+
+        elif btn_id and btn_id.startswith("approval-"):
+            self._select_dropdown_option("approval", btn_id, event.button.label)
+        elif btn_id and btn_id.startswith("model-"):
+            self._select_dropdown_option("model", btn_id, event.button.label)
+        elif btn_id and btn_id.startswith("thinking-"):
+            self._select_dropdown_option("thinking", btn_id, event.button.label)
+
+    def _set_plan_mode(self, plan: bool) -> None:
+        self.plan_mode = plan
+        trigger = self.query_one("#plan-trigger", Button)
+        trigger.label = "Plan" if plan else "Build"
+        self._close_all_dropdowns()
+
+    def _toggle_dropdown(self, options_id: str) -> None:
+        options = self.query_one(f"#{options_id}", Container)
+        if options.has_class("open"):
+            options.remove_class("open")
+        else:
+            self._close_all_dropdowns()
+            options.add_class("open")
+
+    def _close_all_dropdowns(self) -> None:
+        for oid in ("plan-options", "approval-options", "model-options", "thinking-options"):
+            try:
+                opt = self.query_one(f"#{oid}", Container)
+                opt.remove_class("open")
+            except Exception:
+                pass
+
+    def _select_dropdown_option(self, prefix: str, btn_id: str, label: str) -> None:
+        trigger_id = f"{prefix}-trigger"
+        trigger = self.query_one(f"#{trigger_id}", Button)
+        trigger.label = str(label)
+        self._close_all_dropdowns()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        if event.input.id == "message-input":
             self._do_send()
 
     def _do_send(self) -> None:
@@ -210,16 +286,13 @@ class ChatInput(Widget):
 
     def _update_plan_build(self) -> None:
         try:
-            plan_btn = self.query_one("#plan-btn", Button)
-            build_btn = self.query_one("#build-btn", Button)
-            approval = self.query_one("#approval-select", Select)
+            trigger = self.query_one("#plan-trigger", Button)
+            approval = self.query_one("#approval-drop", Container)
             if self.plan_mode:
-                plan_btn.add_class("active")
-                build_btn.remove_class("active")
+                trigger.label = "Plan"
                 approval.remove_class("hidden")
             else:
-                plan_btn.remove_class("active")
-                build_btn.add_class("active")
+                trigger.label = "Build"
                 approval.add_class("hidden")
         except Exception:
             pass

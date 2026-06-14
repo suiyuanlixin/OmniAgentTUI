@@ -15,8 +15,8 @@ class Sidebar(Vertical):
         width: 32;
         height: 1fr;
         dock: left;
-        background: $panel;
-        border-right: solid $surface-darken-1;
+        background: #141414;
+        border-right: none;
         padding: 0;
         display: none;
     }
@@ -37,22 +37,19 @@ class Sidebar(Vertical):
         text-align: left;
         border: none;
         background: transparent;
-        color: $text;
+        color: #eeeeee;
         padding: 0 1;
     }
     Sidebar Button:hover {
-        background: $surface-lighten-1;
+        background: #2a2a2a;
     }
 
     #side-new-chat {
         height: 3;
-        text-align: center;
+        text-align: left;
         margin-bottom: 1;
-        background: $primary;
-        color: $text;
-    }
-    #side-new-chat:hover {
-        background: $primary-lighten-1;
+        background: transparent;
+        color: #eeeeee;
     }
 
     Sidebar Tree {
