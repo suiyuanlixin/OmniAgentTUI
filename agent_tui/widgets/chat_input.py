@@ -7,7 +7,38 @@ from textual.widget import Widget
 from textual.message import Message
 from textual.reactive import reactive
 
+from rich.style import Style
+from rich.text import Text
+
 from agent_tui.data import MODELS, THINKING_LEVELS, APPROVAL_LEVELS
+
+PLAN_CHOICES = ("Plan", "Build")
+PLAN_OPTIONS_WIDTH = max(len(label) for label in PLAN_CHOICES) + 4
+APPROVAL_OPTIONS_WIDTH = max(len(label) for label, _ in APPROVAL_LEVELS) + 4
+MODEL_OPTIONS_WIDTH = max(len(label) for label, _ in MODELS) + 4
+THINKING_OPTIONS_WIDTH = max(len(label) for label, _ in THINKING_LEVELS) + 4
+
+
+class HalfRowSpacer(Static):
+    """A 1-cell-high spacer that visually leaves a half-row gap."""
+
+    DEFAULT_CSS = """
+    HalfRowSpacer {
+        width: 100%;
+        height: 1;
+        background: #0a0a0a;
+        color: #1e1e1e;
+    }
+    """
+
+    def render(self):
+        width = self.size.width
+        if width <= 0:
+            return ""
+        return Text(
+            "\u2580" * width,
+            style=Style(color="#1e1e1e", bgcolor="#0a0a0a"),
+        )
 
 
 class ChatInput(Widget):
@@ -17,7 +48,8 @@ class ChatInput(Widget):
     ChatInput {
         width: 75;
         height: auto;
-        padding: 1 0;
+        padding: 1 0 0 0;
+        margin: 0 0 0 1;
         background: #0a0a0a;
     }
     ChatInput.stretch {
@@ -28,8 +60,7 @@ class ChatInput(Widget):
         width: 100%;
         height: auto;
         background: #1e1e1e;
-        border-left: tall #fab283;
-        padding: 1;
+        padding: 1 1 0 1;
     }
 
     #message-row {
@@ -40,9 +71,8 @@ class ChatInput(Widget):
 
     #controls-row {
         width: 100%;
-        height: auto;
+        height: 1;
         align-horizontal: left;
-        overflow: hidden;
     }
 
     #message-input {
@@ -51,46 +81,50 @@ class ChatInput(Widget):
         border: none;
         background: transparent;
         color: #eeeeee;
+        padding: 0;
     }
 
     #input-area Button {
         min-width: 1;
         height: 1;
-        margin: 0 1 0 0;
+        margin: 0;
         border: none;
         background: transparent;
+        background-tint: transparent;
+        tint: transparent;
         color: #808080;
         padding: 0;
+        text-align: left;
     }
-    #input-area Button:focus {
-        border: none;
-    }
-    #input-area Button:hover {
+    #input-area Button:focus,
+    #input-area Button:hover,
+    #input-area Button.-active {
         border: none;
         border-top: none;
         border-bottom: none;
-        background: #2a2a2a;
+        background: transparent;
+        background-tint: transparent;
+        tint: transparent;
         color: #eeeeee;
     }
 
-    #attach-btn {
+    #input-area #attach-btn {
         width: 1;
         min-width: 1;
         background: transparent;
         border: none;
-        color: #808080;
-        margin: 0 1 0 0;
+        color: #eeeeee;
+        margin: 0;
         padding: 0;
         content-align: center middle;
     }
-    #attach-btn:focus {
+    #input-area #attach-btn:focus,
+    #input-area #attach-btn:hover,
+    #input-area #attach-btn.-active {
         border: none;
-    }
-    #attach-btn:hover {
-        border: none;
-        border-top: none;
-        border-bottom: none;
         background: transparent;
+        background-tint: transparent;
+        tint: transparent;
         color: #eeeeee;
     }
 
@@ -98,7 +132,8 @@ class ChatInput(Widget):
     #plan-drop, #approval-drop, #model-drop, #thinking-drop {
         width: auto;
         height: 1;
-        margin: 0 1 0 0;
+        min-width: 0;
+        margin: 0;
     }
     #approval-drop.hidden {
         display: none;
@@ -112,7 +147,9 @@ class ChatInput(Widget):
         border: none;
         color: #808080;
         margin: 0;
-        padding: 0;
+        padding: 0 1;
+        text-align: left;
+        content-align: left middle;
     }
 
     /* dropdown option panels */
@@ -135,18 +172,41 @@ class ChatInput(Widget):
         width: 100%;
         height: 1;
         background: transparent;
+        background-tint: transparent;
+        tint: transparent;
         border: none;
         color: #eeeeee;
         text-align: left;
-        padding: 0 3;
+        padding: 0 1;
         margin: 0;
     }
-    #plan-options Button:hover, #approval-options Button:hover, #model-options Button:hover, #thinking-options Button:hover {
+    #plan-options Button:hover, #approval-options Button:hover, #model-options Button:hover, #thinking-options Button:hover,
+    #plan-options Button:focus, #approval-options Button:focus, #model-options Button:focus, #thinking-options Button:focus,
+    #plan-options Button.-active, #approval-options Button.-active, #model-options Button.-active, #thinking-options Button.-active {
         border: none;
         border-top: none;
         border-bottom: none;
-        background: #fab283;
+        background: #ffffff;
+        background-tint: transparent;
+        tint: transparent;
         color: #0a0a0a;
+    }
+
+    #plan-trigger.mode-plan,
+    #plan-opt-plan {
+        color: #c39bff;
+    }
+    #plan-trigger.mode-build,
+    #plan-opt-build {
+        color: #6fd3a7;
+    }
+    #approval-trigger.level-approve,
+    #approval-approve {
+        color: #62b0ff;
+    }
+    #approval-trigger.level-full,
+    #approval-full {
+        color: #fab283;
     }
 
     #attached-files {
@@ -173,6 +233,18 @@ class ChatInput(Widget):
         def __init__(self, content: str) -> None:
             super().__init__()
             self.content = content
+
+    def on_mount(self) -> None:
+        self._set_options_width("plan", PLAN_OPTIONS_WIDTH)
+        self._set_options_width("approval", APPROVAL_OPTIONS_WIDTH)
+        self._set_options_width("model", MODEL_OPTIONS_WIDTH)
+        self._set_options_width("thinking", THINKING_OPTIONS_WIDTH)
+        self._fit_trigger_to_label("plan")
+        self._fit_trigger_to_label("approval")
+        self._fit_trigger_to_label("model")
+        self._fit_trigger_to_label("thinking")
+        self._set_approval_level("ask")
+        self._update_plan_build()
 
     def compose(self) -> ComposeResult:
         with Vertical(id="input-area"):
@@ -214,6 +286,8 @@ class ChatInput(Widget):
                         for label, value in THINKING_LEVELS:
                             yield Button(label, id=f"thinking-{value}")
 
+        yield HalfRowSpacer()
+
         with Container(id="attached-files", classes="hidden"):
             yield Static("", id="attached-files-label")
 
@@ -236,6 +310,7 @@ class ChatInput(Widget):
             self._toggle_dropdown("thinking-options")
 
         elif btn_id and btn_id.startswith("approval-"):
+            self._set_approval_level(btn_id.removeprefix("approval-"))
             self._select_dropdown_option("approval", btn_id, event.button.label)
         elif btn_id and btn_id.startswith("model-"):
             self._select_dropdown_option("model", btn_id, event.button.label)
@@ -246,7 +321,33 @@ class ChatInput(Widget):
         self.plan_mode = plan
         trigger = self.query_one("#plan-trigger", Button)
         trigger.label = "Plan" if plan else "Build"
+        trigger.remove_class("mode-plan")
+        trigger.remove_class("mode-build")
+        trigger.add_class("mode-plan" if plan else "mode-build")
+        self._fit_trigger_to_label("plan")
         self._close_all_dropdowns()
+
+    def _set_options_width(self, prefix: str, width: int) -> None:
+        options = self.query_one(f"#{prefix}-options", Container)
+        options.styles.width = width
+        options.styles.min_width = width
+
+    def _fit_trigger_to_label(self, prefix: str) -> None:
+        drop = self.query_one(f"#{prefix}-drop", Container)
+        trigger = self.query_one(f"#{prefix}-trigger", Button)
+        label_width = len(str(trigger.label)) + 2
+        drop.styles.width = label_width
+        trigger.styles.width = label_width
+
+    def _set_approval_level(self, level: str) -> None:
+        trigger = self.query_one("#approval-trigger", Button)
+        for css_class in ("level-approve", "level-full"):
+            trigger.remove_class(css_class)
+        if level == "approve":
+            trigger.add_class("level-approve")
+        elif level == "full":
+            trigger.add_class("level-full")
+        self._fit_trigger_to_label("approval")
 
     def _toggle_dropdown(self, options_id: str) -> None:
         options = self.query_one(f"#{options_id}", Container)
@@ -268,6 +369,7 @@ class ChatInput(Widget):
         trigger_id = f"{prefix}-trigger"
         trigger = self.query_one(f"#{trigger_id}", Button)
         trigger.label = str(label)
+        self._fit_trigger_to_label(prefix)
         self._close_all_dropdowns()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -290,9 +392,14 @@ class ChatInput(Widget):
             approval = self.query_one("#approval-drop", Container)
             if self.plan_mode:
                 trigger.label = "Plan"
-                approval.remove_class("hidden")
+                trigger.remove_class("mode-build")
+                trigger.add_class("mode-plan")
+                approval.add_class("hidden")
             else:
                 trigger.label = "Build"
-                approval.add_class("hidden")
+                trigger.remove_class("mode-plan")
+                trigger.add_class("mode-build")
+                approval.remove_class("hidden")
+            self._fit_trigger_to_label("plan")
         except Exception:
             pass
