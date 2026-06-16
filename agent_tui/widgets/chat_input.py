@@ -42,7 +42,7 @@ class HalfRowSpacer(Static):
 
 
 class ChatInput(Widget):
-    """Chat input bar with [+] Plan/Build Approval [text input] Model Thinking [Send]."""
+    """Chat input bar with Plan/Build Approval [text input] Model Thinking [Send]."""
 
     DEFAULT_CSS = """
     ChatInput {
@@ -81,7 +81,7 @@ class ChatInput(Widget):
         border: none;
         background: transparent;
         color: #eeeeee;
-        padding: 0;
+        padding: 0 0 0 1;
     }
 
     #input-area Button {
@@ -102,26 +102,6 @@ class ChatInput(Widget):
         border: none;
         border-top: none;
         border-bottom: none;
-        background: transparent;
-        background-tint: transparent;
-        tint: transparent;
-        color: #eeeeee;
-    }
-
-    #input-area #attach-btn {
-        width: 1;
-        min-width: 1;
-        background: transparent;
-        border: none;
-        color: #eeeeee;
-        margin: 0;
-        padding: 0;
-        content-align: center middle;
-    }
-    #input-area #attach-btn:focus,
-    #input-area #attach-btn:hover,
-    #input-area #attach-btn.-active {
-        border: none;
         background: transparent;
         background-tint: transparent;
         tint: transparent;
@@ -209,25 +189,10 @@ class ChatInput(Widget):
         color: #fab283;
     }
 
-    #attached-files {
-        width: 100%;
-        height: auto;
-        padding: 0 0 0 4;
-        color: #808080;
-        background: #0a0a0a;
-    }
-    #attached-files.hidden {
-        display: none;
-    }
     """
 
     plan_mode = reactive(True)
     chat_active = reactive(False)
-
-    class FileAttached(Message):
-        def __init__(self, path: str) -> None:
-            super().__init__()
-            self.path = path
 
     class Send(Message):
         def __init__(self, content: str) -> None:
@@ -255,8 +220,6 @@ class ChatInput(Widget):
                 )
 
             with Horizontal(id="controls-row"):
-                yield Button("+", id="attach-btn")
-
                 # Plan/Build toggle dropdown
                 with Container(id="plan-drop"):
                     yield Button("Plan", id="plan-trigger")
@@ -288,14 +251,9 @@ class ChatInput(Widget):
 
         yield HalfRowSpacer()
 
-        with Container(id="attached-files", classes="hidden"):
-            yield Static("", id="attached-files-label")
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-        if btn_id == "attach-btn":
-            self.post_message(self.FileAttached(""))
-        elif btn_id == "plan-opt-plan":
+        if btn_id == "plan-opt-plan":
             self._set_plan_mode(True)
         elif btn_id == "plan-opt-build":
             self._set_plan_mode(False)
@@ -358,7 +316,12 @@ class ChatInput(Widget):
             options.add_class("open")
 
     def _close_all_dropdowns(self) -> None:
-        for oid in ("plan-options", "approval-options", "model-options", "thinking-options"):
+        for oid in (
+            "plan-options",
+            "approval-options",
+            "model-options",
+            "thinking-options",
+        ):
             try:
                 opt = self.query_one(f"#{oid}", Container)
                 opt.remove_class("open")

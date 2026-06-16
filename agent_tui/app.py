@@ -9,7 +9,6 @@ from agent_tui.widgets.sidebar import Sidebar
 from agent_tui.widgets.chat_input import ChatInput
 from agent_tui.widgets.chat_view import ChatView
 from agent_tui.widgets.project_picker import ProjectPicker
-from agent_tui.widgets.file_modal import FileInputModal
 from agent_tui.widgets.settings import SettingsModal
 
 
@@ -20,6 +19,7 @@ class AgentTUIApp(App):
     Screen {
         background: #0a0a0a;
         color: #eeeeee;
+        overflow: hidden;
     }
 
     #top-bar {
@@ -137,14 +137,6 @@ class AgentTUIApp(App):
 
     def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
         pass
-
-    def on_chat_input_file_attached(self, event: ChatInput.FileAttached) -> None:
-        def handle_result(path: str | None) -> None:
-            if path:
-                chat_input = self.query_one("#chat-input", ChatInput)
-                chat_input.add_attached_file(path)
-
-        self.push_screen(FileInputModal(), callback=handle_result)
 
     def on_chat_input_send(self, event: ChatInput.Send) -> None:
         chat_input = self.query_one("#chat-input", ChatInput)
