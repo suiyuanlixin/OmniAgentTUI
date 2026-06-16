@@ -7,25 +7,29 @@ from textual.widget import Widget
 from textual.reactive import reactive
 from datetime import datetime
 
+from agent_tui.theme import render_css
+
 
 class ChatView(Widget):
     """Chat messages display area."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     ChatView {
         width: 100%;
         height: 1fr;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
     }
 
     ChatView #chat-log {
         width: 100%;
         height: 1fr;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
         border: none;
         padding: 0 1;
     }
     """
+    )
 
     messages: list[tuple[str, str, str]] = []
 

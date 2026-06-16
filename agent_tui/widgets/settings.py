@@ -5,28 +5,31 @@ from textual.containers import Container, Vertical, Horizontal
 from textual.widgets import Button, Label, Static
 from textual.screen import ModalScreen
 
+from agent_tui.theme import render_css
+
 
 class SettingsModal(ModalScreen[None]):
     """Settings modal window centered on screen."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     SettingsModal {
         align: center middle;
-        background: rgba(0, 0, 0, 0.6);
+        background: $OVERLAY_BACKGROUND;
     }
 
     SettingsModal > Container {
         width: 50;
         height: 20;
-        background: #141414;
+        background: $SURFACE_BACKGROUND;
         border: none;
     }
 
     #settings-header {
         width: 100%;
         height: 1;
-        background: #1e1e1e;
-        color: #eeeeee;
+        background: $SURFACE_BACKGROUND;
+        color: $TEXT_PRIMARY;
     }
 
     #settings-title {
@@ -40,11 +43,11 @@ class SettingsModal(ModalScreen[None]):
         height: 1;
         background: transparent;
         border: none;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         dock: right;
     }
     #settings-close-btn:hover {
-        background: #2a2a2a;
+        background: $PAGE_BACKGROUND;
     }
 
     #settings-body {
@@ -54,6 +57,7 @@ class SettingsModal(ModalScreen[None]):
         align: center middle;
     }
     """
+    )
 
     BINDINGS = [
         ("escape", "dismiss_result(None)", "Close"),

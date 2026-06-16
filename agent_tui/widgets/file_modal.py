@@ -5,11 +5,14 @@ from textual.containers import Vertical, Horizontal, Container
 from textual.widgets import Button, Input, Label, Static
 from textual.screen import ModalScreen
 
+from agent_tui.theme import render_css
+
 
 class FileInputModal(ModalScreen[str | None]):
     """Modal to input a file path."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     FileInputModal {
         align: center middle;
     }
@@ -17,7 +20,7 @@ class FileInputModal(ModalScreen[str | None]):
     FileInputModal > Container {
         width: 50;
         height: auto;
-        background: #141414;
+        background: $SURFACE_BACKGROUND;
         border: none;
         padding: 1 2;
     }
@@ -43,7 +46,7 @@ class FileInputModal(ModalScreen[str | None]):
         width: 10;
         margin-right: 1;
         background: transparent;
-        color: #fab283;
+        color: $FULL_ACCESS;
         border: none;
     }
 
@@ -52,6 +55,7 @@ class FileInputModal(ModalScreen[str | None]):
         border: none;
     }
     """
+    )
 
     BINDINGS = [
         ("escape", "dismiss_result(None)", "Cancel"),

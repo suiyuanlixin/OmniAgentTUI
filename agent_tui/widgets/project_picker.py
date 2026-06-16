@@ -8,12 +8,14 @@ from textual.message import Message
 from textual.reactive import reactive
 
 from agent_tui.data import PROJECTS
+from agent_tui.theme import render_css
 
 
 class ProjectPicker(Widget):
     """Project selector dropdown at bottom-left."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     ProjectPicker {
         width: auto;
         height: auto;
@@ -29,19 +31,19 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         text-align: left;
         padding: 0 1;
     }
     #project-trigger:hover {
-        background: #2a2a2a;
+        background: $SURFACE_BACKGROUND;
     }
 
     #project-dropdown {
         width: 40;
         height: auto;
         display: none;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
         border: none;
         padding: 0;
     }
@@ -52,10 +54,10 @@ class ProjectPicker(Widget):
     #project-search-input {
         width: 100%;
         height: 3;
-        background: #1e1e1e;
+        background: $SURFACE_BACKGROUND;
         border: none;
-        border-bottom: solid #2a2a2a;
-        color: #eeeeee;
+        border-bottom: solid $TEXT_MUTED;
+        color: $TEXT_PRIMARY;
         padding: 0 1;
     }
 
@@ -71,18 +73,18 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         text-align: left;
         padding: 0 1;
     }
     #project-list-scroll Button:hover {
-        background: #2a2a2a;
+        background: $SURFACE_BACKGROUND;
     }
 
     #project-dropdown-divider {
         width: 100%;
         height: 1;
-        border-top: solid #2a2a2a;
+        border-top: solid $TEXT_MUTED;
     }
 
     #project-bottom-actions {
@@ -94,15 +96,16 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: #808080;
+        color: $TEXT_MUTED;
         text-align: left;
         padding: 0 1;
     }
     #project-bottom-actions Button:hover {
-        background: #2a2a2a;
-        color: #eeeeee;
+        background: $SURFACE_BACKGROUND;
+        color: $TEXT_PRIMARY;
     }
     """
+    )
 
     current_project = reactive("")
     dropdown_open = reactive(False)

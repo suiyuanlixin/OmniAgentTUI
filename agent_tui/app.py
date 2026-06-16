@@ -5,6 +5,7 @@ from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Label, Tree, Static
 
 from agent_tui.data import PROJECT_NAME, PROJECT_LOGO
+from agent_tui.theme import render_css
 from agent_tui.widgets.sidebar import Sidebar
 from agent_tui.widgets.chat_input import ChatInput
 from agent_tui.widgets.chat_view import ChatView
@@ -15,17 +16,18 @@ from agent_tui.widgets.settings import SettingsModal
 class AgentTUIApp(App):
     """Main Agent TUI application."""
 
-    CSS = """
+    CSS = render_css(
+        """
     Screen {
-        background: #0a0a0a;
-        color: #eeeeee;
+        background: $PAGE_BACKGROUND;
+        color: $TEXT_PRIMARY;
         overflow: hidden;
     }
 
     #top-bar {
         height: 1;
         dock: top;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
         padding: 0 1;
     }
 
@@ -35,12 +37,12 @@ class AgentTUIApp(App):
         height: 1;
         border: none;
         background: transparent;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         padding: 0;
         content-align: center middle;
     }
     #sidebar-toggle:hover {
-        background: #2a2a2a;
+        background: $SURFACE_BACKGROUND;
     }
 
     #main-area {
@@ -52,7 +54,7 @@ class AgentTUIApp(App):
         height: auto;
         content-align: center middle;
         display: block;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
         padding-bottom: 2;
     }
     #welcome-area.hidden {
@@ -67,7 +69,7 @@ class AgentTUIApp(App):
     #messages-view {
         display: none;
         height: 1fr;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
     }
     #messages-view.visible {
         display: block;
@@ -84,7 +86,7 @@ class AgentTUIApp(App):
     #bottom-area {
         dock: bottom;
         height: auto;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
         padding: 0 1;
     }
 
@@ -94,11 +96,12 @@ class AgentTUIApp(App):
 
     #context-label {
         text-align: right;
-        color: #808080;
+        color: $TEXT_MUTED;
         padding-right: 1;
         height: 1;
     }
     """
+    )
 
     BINDINGS = [
         ("escape", "dismiss", "Dismiss"),

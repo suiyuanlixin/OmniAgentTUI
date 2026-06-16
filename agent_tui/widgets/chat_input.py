@@ -11,25 +11,58 @@ from rich.style import Style
 from rich.text import Text
 
 from agent_tui.data import MODELS, THINKING_LEVELS, APPROVAL_LEVELS
+from agent_tui.theme import (
+    APPROVE_FOR_ME,
+    BUILD_MODE,
+    FULL_ACCESS,
+    PAGE_BACKGROUND,
+    PLAN_MODE,
+    SURFACE_BACKGROUND,
+    TEXT_MUTED,
+    TEXT_PRIMARY,
+    render_css,
+)
+
+TRIGGER_HORIZONTAL_PADDING = 1
+OPTION_HORIZONTAL_PADDING = 0
+OPTION_CONTENT_GUTTER = 2
 
 PLAN_CHOICES = ("Plan", "Build")
-PLAN_OPTIONS_WIDTH = max(len(label) for label in PLAN_CHOICES) + 4
-APPROVAL_OPTIONS_WIDTH = max(len(label) for label, _ in APPROVAL_LEVELS) + 4
-MODEL_OPTIONS_WIDTH = max(len(label) for label, _ in MODELS) + 4
-THINKING_OPTIONS_WIDTH = max(len(label) for label, _ in THINKING_LEVELS) + 4
+PLAN_OPTIONS_WIDTH = (
+    max(len(label) for label in PLAN_CHOICES)
+    + (OPTION_HORIZONTAL_PADDING * 2)
+    + OPTION_CONTENT_GUTTER
+)
+APPROVAL_OPTIONS_WIDTH = (
+    max(len(label) for label, _ in APPROVAL_LEVELS)
+    + (OPTION_HORIZONTAL_PADDING * 2)
+    + OPTION_CONTENT_GUTTER
+)
+MODEL_OPTIONS_WIDTH = (
+    max(len(label) for label, _ in MODELS)
+    + (OPTION_HORIZONTAL_PADDING * 2)
+    + OPTION_CONTENT_GUTTER
+)
+THINKING_OPTIONS_WIDTH = (
+    max(len(label) for label, _ in THINKING_LEVELS)
+    + (OPTION_HORIZONTAL_PADDING * 2)
+    + OPTION_CONTENT_GUTTER
+)
 
 
 class HalfRowSpacer(Static):
     """A 1-cell-high spacer that visually leaves a half-row gap."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     HalfRowSpacer {
         width: 100%;
         height: 1;
-        background: #0a0a0a;
-        color: #1e1e1e;
+        background: $PAGE_BACKGROUND;
+        color: $SURFACE_BACKGROUND;
     }
     """
+    )
 
     def render(self):
         width = self.size.width
@@ -37,20 +70,21 @@ class HalfRowSpacer(Static):
             return ""
         return Text(
             "\u2580" * width,
-            style=Style(color="#1e1e1e", bgcolor="#0a0a0a"),
+            style=Style(color=SURFACE_BACKGROUND, bgcolor=PAGE_BACKGROUND),
         )
 
 
 class ChatInput(Widget):
     """Chat input bar with Plan/Build Approval [text input] Model Thinking [Send]."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     ChatInput {
         width: 75;
         height: auto;
         padding: 1 0 0 0;
         margin: 0 0 0 1;
-        background: #0a0a0a;
+        background: $PAGE_BACKGROUND;
     }
     ChatInput.stretch {
         width: 100%;
@@ -59,7 +93,7 @@ class ChatInput(Widget):
     ChatInput > #input-area {
         width: 100%;
         height: auto;
-        background: #1e1e1e;
+        background: $SURFACE_BACKGROUND;
         padding: 1 1 0 1;
     }
 
@@ -80,7 +114,7 @@ class ChatInput(Widget):
         height: 1;
         border: none;
         background: transparent;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         padding: 0 0 0 1;
     }
 
@@ -92,7 +126,7 @@ class ChatInput(Widget):
         background: transparent;
         background-tint: transparent;
         tint: transparent;
-        color: #808080;
+        color: $TEXT_MUTED;
         padding: 0;
         text-align: left;
     }
@@ -105,7 +139,7 @@ class ChatInput(Widget):
         background: transparent;
         background-tint: transparent;
         tint: transparent;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
     }
 
     /* dropdown wrappers */
@@ -125,20 +159,26 @@ class ChatInput(Widget):
         height: 1;
         background: transparent;
         border: none;
-        color: #808080;
+        color: $TEXT_MUTED;
         margin: 0;
         padding: 0 1;
         text-align: left;
         content-align: left middle;
+    }
+    #input-area #model-trigger,
+    #input-area #model-trigger:hover,
+    #input-area #model-trigger:focus,
+    #input-area #model-trigger.-active {
+        color: $TEXT_PRIMARY;
     }
 
     /* dropdown option panels */
     #plan-options, #approval-options, #model-options, #thinking-options {
         display: none;
         width: auto;
-        min-width: 16;
+        min-width: 0;
         height: auto;
-        background: #141414;
+        background: $SURFACE_BACKGROUND;
         border: none;
         padding: 0;
         overlay: screen;
@@ -155,9 +195,9 @@ class ChatInput(Widget):
         background-tint: transparent;
         tint: transparent;
         border: none;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         text-align: left;
-        padding: 0 1;
+        padding: 0 0;
         margin: 0;
     }
     #plan-options Button:hover, #approval-options Button:hover, #model-options Button:hover, #thinking-options Button:hover,
@@ -166,30 +206,31 @@ class ChatInput(Widget):
         border: none;
         border-top: none;
         border-bottom: none;
-        background: #ffffff;
+        background: $TEXT_PRIMARY;
         background-tint: transparent;
         tint: transparent;
-        color: #0a0a0a;
+        color: $PAGE_BACKGROUND;
     }
 
     #plan-trigger.mode-plan,
     #plan-opt-plan {
-        color: #c39bff;
+        color: $PLAN_MODE;
     }
     #plan-trigger.mode-build,
     #plan-opt-build {
-        color: #6fd3a7;
+        color: $BUILD_MODE;
     }
     #approval-trigger.level-approve,
     #approval-approve {
-        color: #62b0ff;
+        color: $APPROVE_FOR_ME;
     }
     #approval-trigger.level-full,
     #approval-full {
-        color: #fab283;
+        color: $FULL_ACCESS;
     }
 
     """
+    )
 
     plan_mode = reactive(True)
     chat_active = reactive(False)
@@ -236,7 +277,7 @@ class ChatInput(Widget):
 
                 # Model dropdown
                 with Container(id="model-drop"):
-                    yield Button("Claude 3.5 Sonnet", id="model-trigger")
+                    yield Button("GPT 5.5 Instant", id="model-trigger")
                     with Container(id="model-options"):
                         for label, value in MODELS:
                             sid = value.replace(".", "-")
@@ -293,7 +334,7 @@ class ChatInput(Widget):
     def _fit_trigger_to_label(self, prefix: str) -> None:
         drop = self.query_one(f"#{prefix}-drop", Container)
         trigger = self.query_one(f"#{prefix}-trigger", Button)
-        label_width = len(str(trigger.label)) + 2
+        label_width = len(str(trigger.label)) + (TRIGGER_HORIZONTAL_PADDING * 2)
         drop.styles.width = label_width
         trigger.styles.width = label_width
 

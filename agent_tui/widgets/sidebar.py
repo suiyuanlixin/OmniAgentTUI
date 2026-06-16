@@ -5,17 +5,19 @@ from textual.widgets import Button, Label, Tree
 from textual.containers import Vertical, Container
 
 from agent_tui.data import PROJECTS, SAMPLE_CHATS, ORPHAN_CHATS
+from agent_tui.theme import render_css
 
 
 class Sidebar(Vertical):
     """Left sidebar with New Chat, Projects tree, Chats tree, and Settings."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS = render_css(
+        """
     Sidebar {
         width: 32;
         height: 1fr;
         dock: left;
-        background: #141414;
+        background: $SURFACE_BACKGROUND;
         border-right: none;
         padding: 0;
         display: none;
@@ -37,11 +39,11 @@ class Sidebar(Vertical):
         text-align: left;
         border: none;
         background: transparent;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
         padding: 0 1;
     }
     Sidebar Button:hover {
-        background: #2a2a2a;
+        background: $PAGE_BACKGROUND;
     }
 
     #side-new-chat {
@@ -49,7 +51,7 @@ class Sidebar(Vertical):
         text-align: left;
         margin-bottom: 1;
         background: transparent;
-        color: #eeeeee;
+        color: $TEXT_PRIMARY;
     }
 
     Sidebar Tree {
@@ -67,6 +69,7 @@ class Sidebar(Vertical):
         margin-top: 1;
     }
     """
+    )
 
     def compose(self) -> ComposeResult:
         with Vertical(id="sidebar-content"):

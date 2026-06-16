@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+from agent_tui.theme import FULL_ACCESS
+
 MODELS: list[tuple[str, str]] = [
-    ("Claude 3.5 Sonnet", "claude-3.5-sonnet"),
-    ("GPT-4o", "gpt-4o"),
+    ("GPT 5.5 Instant", "gpt-5-5-instant"),
+    ("Claude Fable 5", "claude-fable-5"),
+    ("Gemini 3.5 Pro", "gemini-3-5-pro"),
+    ("Grok V9 Medium", "grok-v9-medium"),
+    ("DeepSeek V4 Pro", "deepseek-v4-pro"),
+    ("Qwen 3.7 Max", "qwen-3-7-max"),
+    ("GLM 5.2", "glm-5-2"),
+    ("Kimi K2.7 Code", "kimi-k2-7-code"),
+    ("MiniMax M3", "minimax-m3"),
+    ("Step 3.7 Flash", "step-3-7-flash"),
 ]
 
 THINKING_LEVELS: list[tuple[str, str]] = [
@@ -43,8 +53,8 @@ ORPHAN_CHATS: list[str] = [
 ]
 
 PROJECT_NAME = "OmniAgent"
-PROJECT_LOGO = """
-[#fab283 bold]
+PROJECT_LOGO = f"""
+[{FULL_ACCESS} bold]
 █▀▀█ █▄▄█ █▀▀█ ▀▜▛▀ █▀▀█ █▀▀▀ █▀▀▀ █▀▀█ ▀▜▛▀
 █  █ █  █ █  █  ▐▌  █▀▀█ █  █ █▀▀▀ █  █  ▐▌
 ▀▀▀▀ ▀  ▀ ▀  ▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀  ▀  ▝▘
