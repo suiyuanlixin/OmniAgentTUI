@@ -1,92 +1,92 @@
 # OmniAgent TUI
 
-A terminal user interface for AI Agent interaction, built with [Textual](https://textual.textualize.io/).
+基于 [Textual](https://textual.textualize.io/) 构建的终端 AI Agent 交互界面。
 
 ![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)
 ![Textual](https://img.shields.io/badge/textual-%3E%3D0.30.0-orange)
 
-## Features
+## 功能特性
 
-- **Chat interface** — RichLog-based message display with user/assistant color coding
-- **Model selector** — Switch between AI models via custom overlay dropdown
-- **Plan / Build mode** — Toggle between Plan (hides approval) and Build (shows approval)
-- **Thinking level** — Low / Medium / High / Max
-- **Approval level** — Ask for approval / Approve for me / Full access
-- **Project management** — Sidebar with project tree, per-project chat history, and orphan chats
-- **Project picker** — Bottom bar dropdown with search
-- **New Chat** — Reset to welcome screen at any time
-- **Settings modal** — Placeholder for future configuration
-- **Dark theme** — Centralized via `theme.py` (`string.Template`-based CSS)
+- **聊天界面** — 基于 RichLog 的消息展示，用户/助手分色显示
+- **模型选择** — 自定义覆盖下拉框切换 AI 模型
+- **Plan / Build 模式** — Plan 模式隐藏审批选项，Build 模式显示
+- **思考等级** — 低 / 中 / 高 / 最高
+- **审批级别** — 请求审批 / 替我审批 / 完全访问
+- **项目管理** — 侧边栏项目树、项目内对话历史与未分类对话
+- **项目选择器** — 底栏下拉框，支持搜索过滤
+- **新建对话** — 随时重置回欢迎页
+- **设置弹窗** — 预留后续配置入口
+- **深色主题** — 通过 `theme.py` 集中管理 CSS 变量
 
-## Installation
+## 安装
 
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone https://github.com/YOUR_USERNAME/agent-tui.git
 cd agent-tui
 
-# Create virtual environment (recommended)
+# 创建虚拟环境（推荐）
 python -m venv .venv
 
-# Activate it
+# 激活虚拟环境
 # Windows:
 .venv\Scripts\activate
 # macOS / Linux:
 source .venv/bin/activate
 
-# Install
+# 安装
 pip install .
 ```
 
-## Usage
+## 使用
 
 ```bash
 agent-tui
 ```
 
-Or run directly:
+或直接运行：
 
 ```bash
 python -m agent_tui
 ```
 
-### Controls
+### 快捷键
 
-| Key | Action |
-|-----|--------|
-| `Esc` | Close sidebar / dismiss modal |
-| `☰` (top-left) | Toggle sidebar |
-| `Enter` | Send message |
+| 按键 | 功能 |
+|------|------|
+| `Esc` | 关闭侧边栏 / 关闭弹窗 |
+| `☰`（左上角） | 切换侧边栏 |
+| `Enter` | 发送消息 |
 
-## Project Structure
+## 项目结构
 
 ```
 agent_tui/
 ├── __init__.py
-├── __main__.py          # Entry point
-├── app.py               # Main app layout & orchestration
-├── data.py              # Static data (models, projects, chats)
-├── theme.py             # Centralized CSS variables via render_css()
+├── __main__.py          # 入口
+├── app.py               # 主布局与应用编排
+├── data.py              # 静态数据（模型、项目、对话）
+├── theme.py             # 集中式 CSS 变量
 └── widgets/
     ├── __init__.py
-    ├── chat_input.py    # Input bar with dropdowns and HalfRowSpacer
-    ├── chat_view.py     # Message display (RichLog)
-    ├── file_modal.py    # File path input modal
-    ├── project_picker.py# Project selector dropdown
-    ├── settings.py      # Settings modal (placeholder)
-    └── sidebar.py       # Left panel with project/chats tree
+    ├── chat_input.py    # 输入栏（下拉框 + HalfRowSpacer）
+    ├── chat_view.py     # 消息展示（RichLog）
+    ├── file_modal.py    # 文件路径输入弹窗
+    ├── project_picker.py# 项目选择下拉框
+    ├── settings.py      # 设置弹窗（占位）
+    └── sidebar.py       # 左侧面板（项目/对话树）
 ```
 
-## Development
+## 开发
 
 ```bash
-# Install in editable mode
+# 可编辑模式安装
 pip install -e .
 
-# Dependencies
+# 依赖
 # textual>=0.30.0, rich>=13.0.0
 ```
 
-## License
+## 许可证
 
-MIT
+[GNU General Public License v3.0](LICENSE)
