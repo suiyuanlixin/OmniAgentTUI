@@ -12,14 +12,8 @@ from rich.text import Text
 
 from agent_tui.data import MODELS, THINKING_LEVELS, APPROVAL_LEVELS
 from agent_tui.theme import (
-    APPROVE_FOR_ME,
-    BUILD_MODE,
-    FULL_ACCESS,
     PAGE_BACKGROUND,
-    PLAN_MODE,
     SURFACE_BACKGROUND,
-    TEXT_MUTED,
-    TEXT_PRIMARY,
     render_css,
 )
 
@@ -369,7 +363,15 @@ class ChatInput(Widget):
             options.remove_class("open")
         else:
             self._close_all_dropdowns()
+            self._close_project_picker()
             options.add_class("open")
+
+    def _close_project_picker(self) -> None:
+        try:
+            picker = self.app.query_one("#project-picker")
+            picker._close_dropdown()
+        except Exception:
+            pass
 
     def _close_all_dropdowns(self) -> None:
         for oid in (

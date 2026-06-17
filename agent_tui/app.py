@@ -4,8 +4,8 @@ from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Label, Tree, Static
 
-from agent_tui.data import PROJECT_NAME, PROJECT_LOGO
-from agent_tui.theme import INFO_BAR_BACKGROUND, render_css
+from agent_tui.data import PROJECT_LOGO
+from agent_tui.theme import render_css
 from agent_tui.widgets.sidebar import Sidebar
 from agent_tui.widgets.chat_input import ChatInput, HalfRowSpacer
 from agent_tui.widgets.chat_view import ChatView
@@ -97,6 +97,7 @@ class AgentTUIApp(App):
         text-align: right;
         color: $TEXT_MUTED;
         height: 1;
+        padding-right: 1;
     }
 
     #project-title {

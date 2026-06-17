@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal, Container
-from textual.widgets import Button, Input, Label, Static
+from textual.containers import Horizontal, Container
+from textual.widgets import Button, Input, Label
 from textual.screen import ModalScreen
 
 from agent_tui.theme import render_css

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.widgets import Button, Label, Tree
+from textual.widgets import Button, Tree
 from textual.containers import Vertical, Container
 
 from agent_tui.data import PROJECTS, SAMPLE_CHATS, ORPHAN_CHATS

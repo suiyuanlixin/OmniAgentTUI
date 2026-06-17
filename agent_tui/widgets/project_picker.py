@@ -8,15 +8,13 @@ from textual.message import Message
 from textual.reactive import reactive
 
 from agent_tui.data import PROJECTS
-from agent_tui.theme import (
-    PAGE_BACKGROUND,
-    SURFACE_BACKGROUND,
-    TEXT_MUTED,
-    TEXT_PRIMARY,
-    render_css,
-)
+from agent_tui.theme import render_css
 
-PROJECT_OPTIONS_WIDTH = max(len(label) for label in PROJECTS) + 8
+OPTION_CONTENT_GUTTER = 2  # safety margin
+_MORE_LABELS = ["Show more...", "Add new project", "Don't work in a project"]
+PROJECT_OPTIONS_WIDTH = (
+    max(len(label) for label in list(PROJECTS) + _MORE_LABELS) + OPTION_CONTENT_GUTTER
+)
 
 
 class ProjectPicker(Widget):
@@ -237,7 +235,15 @@ class ProjectPicker(Widget):
         if options.has_class("open"):
             options.remove_class("open")
         else:
+            self._close_chat_input_dropdowns()
             options.add_class("open")
+
+    def _close_chat_input_dropdowns(self) -> None:
+        try:
+            chat_input = self.app.query_one("#chat-input")
+            chat_input._close_all_dropdowns()
+        except Exception:
+            pass
 
     def _toggle_more(self) -> None:
         more = self.query_one("#more-options", Container)

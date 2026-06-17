@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal, Container
-from textual.widgets import Button, Label, Static, RichLog
+from textual.widgets import RichLog
 from textual.widget import Widget
-from textual.reactive import reactive
 from datetime import datetime
 
 from agent_tui.theme import render_css
