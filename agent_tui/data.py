@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agent_tui.theme import FULL_ACCESS
+from agent_tui.theme import TEXT_MUTED, TEXT_PRIMARY
 
 MODELS: list[tuple[str, str]] = [
     ("GPT 5.5 Instant", "gpt-5-5-instant"),
@@ -53,10 +53,8 @@ ORPHAN_CHATS: list[str] = [
 ]
 
 PROJECT_NAME = "OmniAgent"
-PROJECT_LOGO = f"""
-[{FULL_ACCESS} bold]
-█▀▀█ █▄▄█ █▀▀█ ▀▜▛▀ █▀▀█ █▀▀▀ █▀▀▀ █▀▀█ ▀▜▛▀
-█  █ █  █ █  █  ▐▌  █▀▀█ █  █ █▀▀▀ █  █  ▐▌
-▀▀▀▀ ▀  ▀ ▀  ▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀  ▀  ▝▘
-[/]
-"""
+PROJECT_LOGO = (
+    f"[{TEXT_MUTED} bold]█▀▀█ █▄▄█ █▀▀█ ▀▜▛▀[/][{TEXT_PRIMARY} bold] █▀▀█ █▀▀▀ █▀▀▀ █▀▀█ ▀▜▛▀[/]\n"
+    f"[{TEXT_MUTED} bold]█  █ █  █ █  █  ▐▌ [/][{TEXT_PRIMARY} bold] █▀▀█ █  █ █▀▀▀ █  █  ▐▌ [/]\n"
+    f"[{TEXT_MUTED} bold]▀▀▀▀ ▀  ▀ ▀  ▀ ▀▀▀▀[/][{TEXT_PRIMARY} bold] ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀  ▀  ▝▘ [/]"
+)

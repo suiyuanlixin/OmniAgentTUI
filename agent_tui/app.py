@@ -50,20 +50,30 @@ class AgentTUIApp(App):
         height: 1fr;
     }
 
-    #welcome-area {
+    #project-title-wrap {
+        width: 100%;
         height: auto;
-        content-align: center middle;
-        display: block;
-        background: $PAGE_BACKGROUND;
-        padding-bottom: 2;
+        align-horizontal: center;
     }
-    #welcome-area.hidden {
-        display: none;
+
+    #chat-input-wrap {
+        width: 100%;
+        height: auto;
+        align-horizontal: center;
+    }
+    #chat-input-wrap > #chat-input {
+        margin: 0;
     }
 
     #project-title {
-        width: 100%;
-        text-align: center;
+        width: auto;
+        height: 3;
+        text-align: left;
+        margin-bottom: 2;
+        padding: 0;
+    }
+    #project-title.hidden {
+        display: none;
     }
 
     #messages-view {
@@ -76,11 +86,15 @@ class AgentTUIApp(App):
     }
 
     #input-wrapper {
+        width: 100%;
         height: auto;
-        align: center middle;
     }
     #input-wrapper.welcome {
         height: 1fr;
+        align-vertical: middle;
+    }
+    #input-wrapper.welcome #chat-input {
+        padding: 0;
     }
 
     #bottom-area {
@@ -116,13 +130,13 @@ class AgentTUIApp(App):
             with Horizontal(id="top-bar"):
                 yield Button("\u2630", id="sidebar-toggle")
 
-            with Container(id="welcome-area"):
-                yield Static(PROJECT_LOGO, id="project-title")
-
             yield ChatView(id="messages-view")
 
-            with Container(id="input-wrapper", classes="welcome"):
-                yield ChatInput(id="chat-input")
+            with Vertical(id="input-wrapper", classes="welcome"):
+                with Container(id="project-title-wrap"):
+                    yield Static(PROJECT_LOGO, id="project-title")
+                with Container(id="chat-input-wrap"):
+                    yield ChatInput(id="chat-input")
 
             with Container(id="bottom-area"):
                 with Horizontal(id="bottom-bar"):
@@ -172,23 +186,23 @@ class AgentTUIApp(App):
     def new_chat(self) -> None:
         if self.sidebar_visible:
             self.toggle_sidebar()
-        welcome = self.query_one("#welcome-area", Container)
         messages = self.query_one("#messages-view", ChatView)
         chat_input = self.query_one("#chat-input", ChatInput)
-        input_wrapper = self.query_one("#input-wrapper", Container)
+        input_wrapper = self.query_one("#input-wrapper", Vertical)
+        project_title = self.query_one("#project-title", Static)
         chat_input.chat_active = False
         chat_input.remove_class("stretch")
-        welcome.remove_class("hidden")
+        project_title.remove_class("hidden")
         messages.remove_class("visible")
         messages.clear()
         input_wrapper.add_class("welcome")
 
     def start_chat(self) -> None:
-        welcome = self.query_one("#welcome-area", Container)
         messages = self.query_one("#messages-view", ChatView)
-        input_wrapper = self.query_one("#input-wrapper", Container)
+        input_wrapper = self.query_one("#input-wrapper", Vertical)
         chat_input = self.query_one("#chat-input", ChatInput)
-        welcome.add_class("hidden")
+        project_title = self.query_one("#project-title", Static)
+        project_title.add_class("hidden")
         messages.add_class("visible")
         input_wrapper.remove_class("welcome")
         chat_input.add_class("stretch")
