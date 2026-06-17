@@ -65,6 +65,20 @@ class AgentTUIApp(App):
         margin: 0;
     }
 
+    #info-bar-wrap {
+        width: 100%;
+        height: auto;
+        align-horizontal: center;
+    }
+
+    #info-bar-shell {
+        width: 75;
+        height: auto;
+    }
+    #info-bar-shell.stretch {
+        width: 100%;
+    }
+
     #info-bar-bottom {
         color: $INFO_BAR_BACKGROUND;
     }
@@ -140,10 +154,12 @@ class AgentTUIApp(App):
                     yield Static(PROJECT_LOGO, id="project-title")
                 with Container(id="chat-input-wrap"):
                     yield ChatInput(id="chat-input")
-                with Horizontal(id="info-bar"):
-                    yield ProjectPicker(id="project-picker")
-                    yield Label("Context: 0.0k (0%)", id="context-label")
-                yield HalfRowSpacer(id="info-bar-bottom")
+                with Container(id="info-bar-wrap"):
+                    with Vertical(id="info-bar-shell"):
+                        with Horizontal(id="info-bar"):
+                            yield ProjectPicker(id="project-picker")
+                            yield Label("Context: 0.0k (0%)", id="context-label")
+                        yield HalfRowSpacer(id="info-bar-bottom")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
@@ -191,9 +207,11 @@ class AgentTUIApp(App):
         messages = self.query_one("#messages-view", ChatView)
         chat_input = self.query_one("#chat-input", ChatInput)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
+        info_bar_shell = self.query_one("#info-bar-shell", Vertical)
         project_title = self.query_one("#project-title", Static)
         chat_input.chat_active = False
         chat_input.remove_class("stretch")
+        info_bar_shell.remove_class("stretch")
         project_title.remove_class("hidden")
         messages.remove_class("visible")
         messages.clear()
@@ -203,8 +221,10 @@ class AgentTUIApp(App):
         messages = self.query_one("#messages-view", ChatView)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
         chat_input = self.query_one("#chat-input", ChatInput)
+        info_bar_shell = self.query_one("#info-bar-shell", Vertical)
         project_title = self.query_one("#project-title", Static)
         project_title.add_class("hidden")
         messages.add_class("visible")
         input_wrapper.remove_class("welcome")
         chat_input.add_class("stretch")
+        info_bar_shell.add_class("stretch")

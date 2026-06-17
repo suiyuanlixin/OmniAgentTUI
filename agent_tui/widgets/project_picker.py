@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical
-from textual.widgets import Button, Input, Static
+from textual.containers import Container
+from textual.widgets import Button, Input
 from textual.widget import Widget
 from textual.message import Message
 from textual.reactive import reactive
@@ -16,8 +16,7 @@ from agent_tui.theme import (
     render_css,
 )
 
-_ALL_OPTION_LABELS = list(PROJECTS) + ["Add new project", "Don't work in a project"]
-PROJECT_OPTIONS_WIDTH = max(len(label) for label in _ALL_OPTION_LABELS) + 8
+PROJECT_OPTIONS_WIDTH = max(len(label) for label in PROJECTS) + 8
 
 
 class ProjectPicker(Widget):
@@ -69,7 +68,6 @@ class ProjectPicker(Widget):
         height: 1;
         background: transparent;
         border: none;
-        border-bottom: solid $TEXT_MUTED;
         color: $TEXT_PRIMARY;
         padding: 0 1;
     }
@@ -105,17 +103,7 @@ class ProjectPicker(Widget):
         color: $PAGE_BACKGROUND;
     }
 
-    #project-options-divider {
-        width: 100%;
-        height: 1;
-        border-top: solid $TEXT_MUTED;
-    }
-
-    #project-bottom-actions {
-        width: 100%;
-        height: auto;
-    }
-    #project-bottom-actions Button {
+    #project-options #more-trigger {
         width: 100%;
         height: 1;
         background: transparent;
@@ -126,7 +114,31 @@ class ProjectPicker(Widget):
         padding: 0 0;
         margin: 0;
     }
-    #project-bottom-actions Button:hover {
+    #project-options #more-trigger:hover {
+        background: $TEXT_PRIMARY;
+        color: $PAGE_BACKGROUND;
+    }
+
+    #more-options {
+        display: none;
+        height: auto;
+        padding: 0;
+    }
+    #more-options.open {
+        display: block;
+    }
+    #more-options Button {
+        width: 100%;
+        height: 1;
+        background: transparent;
+        border: none;
+        color: $TEXT_PRIMARY;
+        text-align: left;
+        content-align: left middle;
+        padding: 0 0;
+        margin: 0;
+    }
+    #more-options Button:hover {
         background: $TEXT_PRIMARY;
         color: $PAGE_BACKGROUND;
     }
@@ -155,14 +167,14 @@ class ProjectPicker(Widget):
 
     def compose(self) -> ComposeResult:
         with Container(id="project-drop"):
-            yield Button("Select Project \u25be", id="project-trigger")
+            yield Button("Work in a project", id="project-trigger")
             with Container(id="project-options"):
                 yield Input(placeholder="Search Project...", id="project-search-input")
                 with Container(id="project-list"):
                     for proj in self._all_projects:
                         yield Button(proj, classes="project-item")
-                yield Static(id="project-options-divider")
-                with Vertical(id="project-bottom-actions"):
+                yield Button("Show more...", id="more-trigger")
+                with Container(id="more-options"):
                     yield Button("Add new project", id="add-project-btn")
                     yield Button("Don't work in a project", id="no-project-btn")
 
@@ -181,13 +193,18 @@ class ProjectPicker(Widget):
             event.stop()
             return
 
+        if btn_id == "more-trigger":
+            self._toggle_more()
+            event.stop()
+            return
+
         project_buttons = self.query("#project-list Button")
         for btn in project_buttons:
             if btn.id == event.button.id:
                 proj_name = str(event.button.label)
                 self.current_project = proj_name
                 trigger = self.query_one("#project-trigger", Button)
-                trigger.label = f"{proj_name} \u25be"
+                trigger.label = proj_name
                 self._fit_trigger()
                 self._close_dropdown()
                 self.post_message(self.ProjectSelected(proj_name))
@@ -202,7 +219,7 @@ class ProjectPicker(Widget):
             self._close_dropdown()
             self.current_project = ""
             trigger = self.query_one("#project-trigger", Button)
-            trigger.label = "Select Project \u25be"
+            trigger.label = "Work in a project"
             self._fit_trigger()
             self.post_message(self.NoProject())
             event.stop()
@@ -222,6 +239,18 @@ class ProjectPicker(Widget):
         else:
             options.add_class("open")
 
+    def _toggle_more(self) -> None:
+        more = self.query_one("#more-options", Container)
+        if more.has_class("open"):
+            more.remove_class("open")
+        else:
+            more.add_class("open")
+
     def _close_dropdown(self) -> None:
         options = self.query_one("#project-options", Container)
         options.remove_class("open")
+        try:
+            more = self.query_one("#more-options", Container)
+            more.remove_class("open")
+        except Exception:
+            pass
