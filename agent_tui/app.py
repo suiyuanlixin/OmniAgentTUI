@@ -5,9 +5,9 @@ from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Label, Tree, Static
 
 from agent_tui.data import PROJECT_NAME, PROJECT_LOGO
-from agent_tui.theme import render_css
+from agent_tui.theme import INFO_BAR_BACKGROUND, render_css
 from agent_tui.widgets.sidebar import Sidebar
-from agent_tui.widgets.chat_input import ChatInput
+from agent_tui.widgets.chat_input import ChatInput, HalfRowSpacer
 from agent_tui.widgets.chat_view import ChatView
 from agent_tui.widgets.project_picker import ProjectPicker
 from agent_tui.widgets.settings import SettingsModal
@@ -65,6 +65,26 @@ class AgentTUIApp(App):
         margin: 0;
     }
 
+    #info-bar-bottom {
+        color: $INFO_BAR_BACKGROUND;
+    }
+
+    #info-bar {
+        width: 100%;
+        height: 1;
+        background: $INFO_BAR_BACKGROUND;
+        padding: 0 1;
+    }
+    #info-bar > #project-picker {
+        margin: 0;
+    }
+    #info-bar > #context-label {
+        width: 1fr;
+        text-align: right;
+        color: $TEXT_MUTED;
+        height: 1;
+    }
+
     #project-title {
         width: auto;
         height: 3;
@@ -97,23 +117,6 @@ class AgentTUIApp(App):
         padding: 0;
     }
 
-    #bottom-area {
-        dock: bottom;
-        height: auto;
-        background: $PAGE_BACKGROUND;
-        padding: 0 1;
-    }
-
-    #bottom-bar {
-        height: auto;
-    }
-
-    #context-label {
-        text-align: right;
-        color: $TEXT_MUTED;
-        padding-right: 1;
-        height: 1;
-    }
     """
     )
 
@@ -137,11 +140,10 @@ class AgentTUIApp(App):
                     yield Static(PROJECT_LOGO, id="project-title")
                 with Container(id="chat-input-wrap"):
                     yield ChatInput(id="chat-input")
-
-            with Container(id="bottom-area"):
-                with Horizontal(id="bottom-bar"):
+                with Horizontal(id="info-bar"):
                     yield ProjectPicker(id="project-picker")
                     yield Label("Context: 0.0k (0%)", id="context-label")
+                yield HalfRowSpacer(id="info-bar-bottom")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id

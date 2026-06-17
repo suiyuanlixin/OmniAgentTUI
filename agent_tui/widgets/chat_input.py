@@ -51,7 +51,10 @@ THINKING_OPTIONS_WIDTH = (
 
 
 class HalfRowSpacer(Static):
-    """A 1-cell-high spacer that visually leaves a half-row gap."""
+    """A 1-cell-high spacer that visually leaves a half-row gap.
+    Reads ``color`` and ``background`` from CSS so different instances can use
+    different border colours.
+    """
 
     DEFAULT_CSS = render_css(
         """
@@ -68,9 +71,14 @@ class HalfRowSpacer(Static):
         width = self.size.width
         if width <= 0:
             return ""
+        colour = self.styles.color
+        bg = self.styles.background
         return Text(
             "\u2580" * width,
-            style=Style(color=SURFACE_BACKGROUND, bgcolor=PAGE_BACKGROUND),
+            style=Style(
+                color=colour.hex if colour else SURFACE_BACKGROUND,
+                bgcolor=bg.hex if bg else PAGE_BACKGROUND,
+            ),
         )
 
 
@@ -183,6 +191,7 @@ class ChatInput(Widget):
         padding: 0;
         overlay: screen;
         constrain: none inside;
+        align-horizontal: left;
     }
     #plan-options.open, #approval-options.open, #model-options.open, #thinking-options.open {
         display: block;
@@ -197,6 +206,7 @@ class ChatInput(Widget):
         border: none;
         color: $TEXT_PRIMARY;
         text-align: left;
+        content-align: left middle;
         padding: 0 0;
         margin: 0;
     }
@@ -227,6 +237,11 @@ class ChatInput(Widget):
     #approval-trigger.level-full,
     #approval-full {
         color: $FULL_ACCESS;
+    }
+
+    #chat-input-bottom-edge {
+        color: $SURFACE_BACKGROUND;
+        background: $INFO_BAR_BACKGROUND;
     }
 
     """
@@ -290,7 +305,7 @@ class ChatInput(Widget):
                         for label, value in THINKING_LEVELS:
                             yield Button(label, id=f"thinking-{value}")
 
-        yield HalfRowSpacer()
+        yield HalfRowSpacer(id="chat-input-bottom-edge")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id

@@ -1,87 +1,111 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Vertical
 from textual.widgets import Button, Input, Static
 from textual.widget import Widget
 from textual.message import Message
 from textual.reactive import reactive
 
 from agent_tui.data import PROJECTS
-from agent_tui.theme import render_css
+from agent_tui.theme import (
+    PAGE_BACKGROUND,
+    SURFACE_BACKGROUND,
+    TEXT_MUTED,
+    TEXT_PRIMARY,
+    render_css,
+)
+
+_ALL_OPTION_LABELS = list(PROJECTS) + ["Add new project", "Don't work in a project"]
+PROJECT_OPTIONS_WIDTH = max(len(label) for label in _ALL_OPTION_LABELS) + 8
 
 
 class ProjectPicker(Widget):
-    """Project selector dropdown at bottom-left."""
+    """Project selector dropdown (overlay style, matches model/thinking dropdowns)."""
 
     DEFAULT_CSS = render_css(
         """
     ProjectPicker {
         width: auto;
-        height: auto;
+        height: 1;
     }
 
-    #picker-vertical {
+    #project-drop {
         width: auto;
-        height: auto;
+        height: 1;
+        min-width: 0;
+        margin: 0;
     }
 
     #project-trigger {
-        width: 28;
+        width: auto;
         height: 1;
         background: transparent;
         border: none;
         color: $TEXT_PRIMARY;
+        margin: 0;
+        padding: 0 0;
         text-align: left;
-        padding: 0 1;
-    }
-    #project-trigger:hover {
-        background: $SURFACE_BACKGROUND;
+        content-align: left middle;
     }
 
-    #project-dropdown {
-        width: 40;
-        height: auto;
+    #project-options {
         display: none;
-        background: $PAGE_BACKGROUND;
+        width: auto;
+        min-width: 0;
+        height: auto;
+        background: $SURFACE_BACKGROUND;
         border: none;
         padding: 0;
+        overlay: screen;
+        align-horizontal: left;
     }
-    #project-dropdown.open {
+    #project-options.open {
         display: block;
     }
 
     #project-search-input {
         width: 100%;
-        height: 3;
-        background: $SURFACE_BACKGROUND;
+        height: 1;
+        background: transparent;
         border: none;
         border-bottom: solid $TEXT_MUTED;
         color: $TEXT_PRIMARY;
         padding: 0 1;
     }
 
-    #project-list-scroll {
-        max-height: 5;
-        overflow-y: auto;
+    #project-list {
         width: 100%;
+        height: auto;
         padding: 0;
     }
 
-    #project-list-scroll Button {
+    #project-options Button {
         width: 100%;
         height: 1;
         background: transparent;
+        background-tint: transparent;
+        tint: transparent;
         border: none;
         color: $TEXT_PRIMARY;
         text-align: left;
-        padding: 0 1;
+        content-align: left middle;
+        padding: 0 0;
+        margin: 0;
     }
-    #project-list-scroll Button:hover {
-        background: $SURFACE_BACKGROUND;
+    #project-options Button:hover,
+    #project-options Button:focus,
+    #project-options Button.-active {
+        border: none;
+        border-top: none;
+        border-bottom: none;
+        background: $TEXT_PRIMARY;
+        background-tint: transparent;
+        tint: transparent;
+        color: $PAGE_BACKGROUND;
     }
 
-    #project-dropdown-divider {
+    #project-options-divider {
         width: 100%;
         height: 1;
         border-top: solid $TEXT_MUTED;
@@ -98,17 +122,18 @@ class ProjectPicker(Widget):
         border: none;
         color: $TEXT_MUTED;
         text-align: left;
-        padding: 0 1;
+        content-align: left middle;
+        padding: 0 0;
+        margin: 0;
     }
     #project-bottom-actions Button:hover {
-        background: $SURFACE_BACKGROUND;
-        color: $TEXT_PRIMARY;
+        background: $TEXT_PRIMARY;
+        color: $PAGE_BACKGROUND;
     }
     """
     )
 
     current_project = reactive("")
-    dropdown_open = reactive(False)
     _all_projects: list[str] = PROJECTS.copy()
 
     class ProjectSelected(Message):
@@ -122,68 +147,81 @@ class ProjectPicker(Widget):
     class AddProject(Message):
         pass
 
+    def on_mount(self) -> None:
+        options = self.query_one("#project-options", Container)
+        options.styles.width = PROJECT_OPTIONS_WIDTH
+        options.styles.min_width = PROJECT_OPTIONS_WIDTH
+        self._fit_trigger()
+
     def compose(self) -> ComposeResult:
-        with Vertical(id="picker-vertical"):
-            yield Button("Select Project \u25bc", id="project-trigger")
-
-            with Container(id="project-dropdown"):
+        with Container(id="project-drop"):
+            yield Button("Select Project \u25be", id="project-trigger")
+            with Container(id="project-options"):
                 yield Input(placeholder="Search Project...", id="project-search-input")
-
-                with Container(id="project-list-scroll"):
+                with Container(id="project-list"):
                     for proj in self._all_projects:
                         yield Button(proj, classes="project-item")
-
-                yield Static(id="project-dropdown-divider")
-
-                with Horizontal(id="project-bottom-actions"):
-                    yield Button("+ Add new project", id="add-project-btn")
+                yield Static(id="project-options-divider")
+                with Vertical(id="project-bottom-actions"):
+                    yield Button("Add new project", id="add-project-btn")
                     yield Button("Don't work in a project", id="no-project-btn")
+
+    def _fit_trigger(self) -> None:
+        drop = self.query_one("#project-drop", Container)
+        trigger = self.query_one("#project-trigger", Button)
+        label_width = len(str(trigger.label)) + 2
+        drop.styles.width = label_width
+        trigger.styles.width = label_width
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
 
         if btn_id == "project-trigger":
-            self.dropdown_open = not self.dropdown_open
+            self._toggle_dropdown()
             event.stop()
             return
 
-        project_buttons = self.query("#project-list-scroll Button")
+        project_buttons = self.query("#project-list Button")
         for btn in project_buttons:
             if btn.id == event.button.id:
                 proj_name = str(event.button.label)
                 self.current_project = proj_name
-                self.dropdown_open = False
                 trigger = self.query_one("#project-trigger", Button)
-                trigger.label = f"{proj_name} \u25bc"
+                trigger.label = f"{proj_name} \u25be"
+                self._fit_trigger()
+                self._close_dropdown()
                 self.post_message(self.ProjectSelected(proj_name))
                 event.stop()
                 return
 
         if btn_id == "add-project-btn":
-            self.dropdown_open = False
+            self._close_dropdown()
             self.post_message(self.AddProject())
             event.stop()
         elif btn_id == "no-project-btn":
-            self.dropdown_open = False
+            self._close_dropdown()
             self.current_project = ""
             trigger = self.query_one("#project-trigger", Button)
-            trigger.label = "Select Project \u25bc"
+            trigger.label = "Select Project \u25be"
+            self._fit_trigger()
             self.post_message(self.NoProject())
             event.stop()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "project-search-input":
             query = event.value.lower()
-            project_items = self.query("#project-list-scroll Button")
+            project_items = self.query("#project-list Button")
             for item in project_items:
                 label = str(item.label).lower()
                 item.display = query in label if query else True
 
-    def watch_dropdown_open(self, open_val: bool) -> None:
-        dropdown = self.query_one("#project-dropdown", Container)
-        if open_val:
-            dropdown.add_class("open")
-            search = self.query_one("#project-search-input", Input)
-            search.focus()
+    def _toggle_dropdown(self) -> None:
+        options = self.query_one("#project-options", Container)
+        if options.has_class("open"):
+            options.remove_class("open")
         else:
-            dropdown.remove_class("open")
+            options.add_class("open")
+
+    def _close_dropdown(self) -> None:
+        options = self.query_one("#project-options", Container)
+        options.remove_class("open")
