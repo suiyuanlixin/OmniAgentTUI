@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import Button, Label, Tree, Static
+from textual.widgets import Button, Label, Static
+from textual import events
 
 from agent_tui.data import PROJECT_LOGO
 from agent_tui.theme import render_css
@@ -24,25 +25,42 @@ class AgentTUIApp(App):
         overflow: hidden;
     }
 
-    #top-bar {
-        height: 1;
-        dock: top;
-        background: $PAGE_BACKGROUND;
-        padding: 0 1;
+    #left-edge {
+        dock: left;
+        width: 3;
+        height: 1fr;
+        padding: 0;
+        background: transparent;
+    }
+    #left-edge.sidebar-hidden {
+        width: 3;
+        background: transparent;
+    }
+    #left-edge.sidebar-visible {
+        width: 32;
+        background: $SURFACE_BACKGROUND;
     }
 
     #sidebar-toggle {
-        width: 3;
-        min-width: 3;
+        width: 100%;
+        min-width: 1;
         height: 1;
-        border: none;
-        background: transparent;
+        background: $PAGE_BACKGROUND;
         color: $TEXT_PRIMARY;
-        padding: 0;
-        content-align: center middle;
+        padding: 0 1;
+        margin: 0;
+        text-align: left;
+        content-align: left middle;
+        text-style: bold;
     }
     #sidebar-toggle:hover {
+        background: $PAGE_BACKGROUND;
+        color: $TEXT_PRIMARY;
+    }
+    #left-edge.sidebar-visible > #sidebar-toggle,
+    #left-edge.sidebar-visible > #sidebar-toggle:hover {
         background: $SURFACE_BACKGROUND;
+        color: $TEXT_PRIMARY;
     }
 
     #main-area {
@@ -142,12 +160,11 @@ class AgentTUIApp(App):
     sidebar_visible: bool = False
 
     def compose(self) -> ComposeResult:
-        yield Sidebar(id="sidebar", classes="sidebar-hidden")
+        with Vertical(id="left-edge", classes="sidebar-hidden"):
+            yield Static("=", id="sidebar-toggle")
+            yield Sidebar(id="sidebar")
 
         with Vertical(id="main-area"):
-            with Horizontal(id="top-bar"):
-                yield Button("\u2630", id="sidebar-toggle")
-
             yield ChatView(id="messages-view")
 
             with Vertical(id="input-wrapper", classes="welcome"):
@@ -164,15 +181,16 @@ class AgentTUIApp(App):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-        if btn_id == "sidebar-toggle":
-            self.toggle_sidebar()
-        elif btn_id == "side-new-chat":
+        if btn_id == "side-new-chat":
             self.new_chat()
         elif btn_id == "side-settings":
             self.push_screen(SettingsModal())
 
-    def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
-        pass
+    def on_click(self, event: events.Click) -> None:
+        if not event.control:
+            return
+        if event.control.id == "sidebar-toggle":
+            self.toggle_sidebar()
 
     def on_chat_input_send(self, event: ChatInput.Send) -> None:
         chat_input = self.query_one("#chat-input", ChatInput)
@@ -184,13 +202,21 @@ class AgentTUIApp(App):
 
     def toggle_sidebar(self) -> None:
         self.sidebar_visible = not self.sidebar_visible
+        left_edge = self.query_one("#left-edge", Vertical)
         sidebar = self.query_one("#sidebar", Sidebar)
+        toggle = self.query_one("#sidebar-toggle", Static)
         if self.sidebar_visible:
+            left_edge.remove_class("sidebar-hidden")
+            left_edge.add_class("sidebar-visible")
             sidebar.remove_class("sidebar-hidden")
             sidebar.add_class("sidebar-visible")
+            toggle.update("= Sessions")
         else:
+            left_edge.remove_class("sidebar-visible")
+            left_edge.add_class("sidebar-hidden")
             sidebar.remove_class("sidebar-visible")
             sidebar.add_class("sidebar-hidden")
+            toggle.update("=")
 
     def action_dismiss(self) -> None:
         if self.sidebar_visible:
