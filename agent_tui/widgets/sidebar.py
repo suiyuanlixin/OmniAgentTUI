@@ -37,11 +37,19 @@ class Sidebar(Vertical):
     }
 
     Sidebar > #sidebar-content {
+        width: 100%;
         height: 1fr;
         background: $SURFACE_BACKGROUND;
         padding: 0;
         overflow-y: auto;
-        scrollbar-size: 0 0;
+        scrollbar-size: 1 1;
+        scrollbar-gutter: stable;
+        scrollbar-color: transparent;
+        scrollbar-background: transparent;
+        scrollbar-color-active: transparent;
+        scrollbar-color-hover: transparent;
+        scrollbar-background-active: transparent;
+        scrollbar-background-hover: transparent;
     }
 
     Sidebar Button.sidebar-action {
@@ -103,6 +111,9 @@ class Sidebar(Vertical):
     #chats-title {
         margin-top: 1;
     }
+    #chats-list {
+        padding-bottom: 1;
+    }
 
     .sidebar-list {
         width: 100%;
@@ -119,8 +130,8 @@ class Sidebar(Vertical):
         height: 1;
         color: $TEXT_PRIMARY;
         background: transparent;
-        padding: 0 0 0 2;
-        margin: 0;
+        padding: 0 0 0 1;
+        margin: 0 0 0 1;
         content-align: left middle;
     }
     .sidebar-item:hover {
@@ -128,7 +139,7 @@ class Sidebar(Vertical):
         color: $PAGE_BACKGROUND;
     }
     .sidebar-chat-item {
-        padding: 0 0 0 4;
+        padding: 0 0 0 3;
     }
     .sidebar-empty-item {
         color: $TEXT_MUTED;
@@ -196,7 +207,6 @@ class Sidebar(Vertical):
             with Vertical(id="chats-list", classes="sidebar-list"):
                 for chat in ORPHAN_CHATS:
                     yield Static(chat, classes="sidebar-item")
-                yield Static("", classes="sidebar-item")
 
         settings = SidebarActionButton(
             "= Settings", id="side-settings", classes="sidebar-action"

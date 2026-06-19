@@ -70,6 +70,7 @@ class AgentTUIApp(App):
         width: 1fr;
         height: 1fr;
         min-width: 46;
+        align-horizontal: center;
     }
 
     #project-title-wrap {
@@ -140,13 +141,29 @@ class AgentTUIApp(App):
         display: none;
     }
 
-    #messages-view {
+    #messages-wrap {
         display: none;
+        width: 100%;
         height: 1fr;
+        min-width: 46;
+        padding: 0;
+        align-horizontal: center;
         background: $PAGE_BACKGROUND;
     }
-    #messages-view.visible {
+    #messages-wrap.visible {
         display: block;
+    }
+    #messages-shell {
+        width: 100%;
+        height: 1fr;
+        min-width: 44;
+        max-width: 75;
+    }
+
+    #messages-view {
+        width: 100%;
+        height: 1fr;
+        background: $PAGE_BACKGROUND;
     }
 
     #input-wrapper {
@@ -156,9 +173,6 @@ class AgentTUIApp(App):
     #input-wrapper.welcome {
         height: 1fr;
         align-vertical: middle;
-    }
-    #input-wrapper.welcome #chat-input {
-        padding: 0;
     }
 
     """
@@ -176,7 +190,9 @@ class AgentTUIApp(App):
             yield Sidebar(id="sidebar")
 
         with Vertical(id="main-area"):
-            yield ChatView(id="messages-view")
+            with Container(id="messages-wrap"):
+                with Vertical(id="messages-shell"):
+                    yield ChatView(id="messages-view")
 
             with Vertical(id="input-wrapper", classes="welcome"):
                 with Container(id="project-title-wrap"):
@@ -243,6 +259,7 @@ class AgentTUIApp(App):
         if self.sidebar_visible:
             self.toggle_sidebar()
         messages = self.query_one("#messages-view", ChatView)
+        messages_wrap = self.query_one("#messages-wrap", Container)
         chat_input = self.query_one("#chat-input", ChatInput)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
         info_bar_shell = self.query_one("#info-bar-shell", Vertical)
@@ -251,18 +268,19 @@ class AgentTUIApp(App):
         chat_input.remove_class("stretch")
         info_bar_shell.remove_class("stretch")
         project_title.remove_class("hidden")
-        messages.remove_class("visible")
+        messages_wrap.remove_class("visible")
         messages.clear()
         input_wrapper.add_class("welcome")
 
     def start_chat(self) -> None:
         messages = self.query_one("#messages-view", ChatView)
+        messages_wrap = self.query_one("#messages-wrap", Container)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
         chat_input = self.query_one("#chat-input", ChatInput)
         info_bar_shell = self.query_one("#info-bar-shell", Vertical)
         project_title = self.query_one("#project-title", Static)
         project_title.add_class("hidden")
-        messages.add_class("visible")
+        messages_wrap.add_class("visible")
         input_wrapper.remove_class("welcome")
         chat_input.add_class("stretch")
         info_bar_shell.add_class("stretch")

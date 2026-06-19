@@ -86,7 +86,7 @@ class ChatInput(Widget):
         min-width: 44;
         max-width: 75;
         height: auto;
-        padding: 1 0 0 0;
+        padding: 0;
         margin: 0;
         background: $PAGE_BACKGROUND;
     }
