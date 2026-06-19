@@ -82,10 +82,12 @@ class ChatInput(Widget):
     DEFAULT_CSS = render_css(
         """
     ChatInput {
-        width: 75;
+        width: 100%;
+        min-width: 44;
+        max-width: 75;
         height: auto;
         padding: 1 0 0 0;
-        margin: 0 0 0 1;
+        margin: 0;
         background: $PAGE_BACKGROUND;
     }
     ChatInput.stretch {

@@ -123,8 +123,20 @@ class Sidebar(Vertical):
         margin: 0;
         content-align: left middle;
     }
-
-
+    .sidebar-item:hover {
+        background: $TEXT_PRIMARY;
+        color: $PAGE_BACKGROUND;
+    }
+    .sidebar-chat-item {
+        padding: 0 0 0 4;
+    }
+    .sidebar-empty-item {
+        color: $TEXT_MUTED;
+    }
+    .sidebar-empty-item:hover {
+        background: transparent;
+        color: $TEXT_MUTED;
+    }
 
     #side-settings {
         dock: bottom;
@@ -153,23 +165,35 @@ class Sidebar(Vertical):
     )
 
     def compose(self) -> ComposeResult:
+        new_chat = SidebarActionButton(
+            "New Chat", id="side-new-chat", classes="sidebar-action"
+        )
+        yield new_chat
         with Vertical(id="sidebar-content"):
-            new_chat = SidebarActionButton(
-                "New Chat", id="side-new-chat", classes="sidebar-action"
-            )
-            yield new_chat
             yield Static(
                 "Projects", id="projects-title", classes="sidebar-section-title"
             )
             with Vertical(id="projects-list", classes="sidebar-list"):
-                for project in PROJECTS:
-                    yield Static(project, classes="sidebar-item")
-
+                for index, project in enumerate(PROJECTS):
+                    yield Static(project, id=f"project-{index}", classes="sidebar-item")
+                    with Vertical(
+                        id=f"project-chats-{index}",
+                        classes="sidebar-list project-chat-list hidden",
+                    ):
+                        chats = list(reversed(SAMPLE_CHATS.get(project, [])))
+                        if chats:
+                            for chat in chats:
+                                yield Static(
+                                    chat,
+                                    classes="sidebar-item sidebar-chat-item",
+                                )
+                        else:
+                            yield Static(
+                                "No chats",
+                                classes="sidebar-item sidebar-chat-item sidebar-empty-item",
+                            )
             yield Static("Chats", id="chats-title", classes="sidebar-section-title")
             with Vertical(id="chats-list", classes="sidebar-list"):
-                for project in PROJECTS:
-                    for chat in reversed(SAMPLE_CHATS.get(project, [])):
-                        yield Static(chat, classes="sidebar-item")
                 for chat in ORPHAN_CHATS:
                     yield Static(chat, classes="sidebar-item")
                 yield Static("", classes="sidebar-item")
@@ -180,16 +204,27 @@ class Sidebar(Vertical):
         yield settings
 
     def on_click(self, event: events.Click) -> None:
-        if event.control:
-            if event.control.id == "projects-title":
-                lst = self.query_one("#projects-list", Vertical)
-                if lst.has_class("hidden"):
-                    lst.remove_class("hidden")
-                else:
-                    lst.add_class("hidden")
-            elif event.control.id == "chats-title":
-                lst = self.query_one("#chats-list", Vertical)
-                if lst.has_class("hidden"):
-                    lst.remove_class("hidden")
-                else:
-                    lst.add_class("hidden")
+        if not event.control or not event.control.id:
+            return
+
+        if event.control.id == "projects-title":
+            lst = self.query_one("#projects-list", Vertical)
+            if lst.has_class("hidden"):
+                lst.remove_class("hidden")
+            else:
+                lst.add_class("hidden")
+        elif event.control.id == "chats-title":
+            lst = self.query_one("#chats-list", Vertical)
+            if lst.has_class("hidden"):
+                lst.remove_class("hidden")
+            else:
+                lst.add_class("hidden")
+        elif event.control.id.startswith(
+            "project-"
+        ) and not event.control.id.startswith("project-chats-"):
+            index = event.control.id.removeprefix("project-")
+            lst = self.query_one(f"#project-chats-{index}", Vertical)
+            if lst.has_class("hidden"):
+                lst.remove_class("hidden")
+            else:
+                lst.add_class("hidden")

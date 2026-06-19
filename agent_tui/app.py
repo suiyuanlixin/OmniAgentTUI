@@ -17,12 +17,15 @@ from agent_tui.widgets.settings import SettingsModal
 class AgentTUIApp(App):
     """Main Agent TUI application."""
 
+    ALLOW_SELECT = False
+
     CSS = render_css(
         """
     Screen {
         background: $PAGE_BACKGROUND;
         color: $TEXT_PRIMARY;
         overflow: hidden;
+        min-width: 49;
     }
 
     #left-edge {
@@ -66,17 +69,21 @@ class AgentTUIApp(App):
     #main-area {
         width: 1fr;
         height: 1fr;
+        min-width: 46;
     }
 
     #project-title-wrap {
         width: 100%;
         height: auto;
+        min-width: 44;
         align-horizontal: center;
     }
 
     #chat-input-wrap {
         width: 100%;
         height: auto;
+        min-width: 46;
+        padding: 0 1;
         align-horizontal: center;
     }
     #chat-input-wrap > #chat-input {
@@ -86,11 +93,15 @@ class AgentTUIApp(App):
     #info-bar-wrap {
         width: 100%;
         height: auto;
+        min-width: 46;
+        padding: 0 1;
         align-horizontal: center;
     }
 
     #info-bar-shell {
-        width: 75;
+        width: 100%;
+        min-width: 44;
+        max-width: 75;
         height: auto;
     }
     #info-bar-shell.stretch {
