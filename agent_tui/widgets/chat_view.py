@@ -69,7 +69,7 @@ class ChatView(Widget):
         height: auto;
         min-width: 1;
         min-height: 1;
-        padding: 0 1;
+        padding: 0 2;
         margin: 0;
     }
     .message-bubble-user {
@@ -97,17 +97,17 @@ class ChatView(Widget):
                 c = f.read()
             _u = next(
                 (
-                    l.split("=", 1)[1]
-                    for l in c.splitlines()
-                    if l.startswith("DEBUG_SERVER_URL=")
+                    line.split("=", 1)[1]
+                    for line in c.splitlines()
+                    if line.startswith("DEBUG_SERVER_URL=")
                 ),
                 _u,
             )
             _s = next(
                 (
-                    l.split("=", 1)[1]
-                    for l in c.splitlines()
-                    if l.startswith("DEBUG_SESSION_ID=")
+                    line.split("=", 1)[1]
+                    for line in c.splitlines()
+                    if line.startswith("DEBUG_SESSION_ID=")
                 ),
                 _s,
             )

@@ -2,18 +2,22 @@ from __future__ import annotations
 
 from textual.app import ComposeResult
 from textual.containers import Container
-from textual.widgets import Button, Input
+from textual.widgets import Button, Input, Static
 from textual.widget import Widget
 from textual.message import Message
 from textual.reactive import reactive
 
 from agent_tui.data import PROJECTS
 from agent_tui.theme import render_css
+from agent_tui.widgets.chat_input import HalfRowSpacer
 
+OPTION_HORIZONTAL_PADDING = 1
 OPTION_CONTENT_GUTTER = 2  # safety margin
-_MORE_LABELS = ["Show more...", "Add new project", "Don't work in a project"]
+_MORE_LABELS = ["Add new project", "Don't work in a project"]
 PROJECT_OPTIONS_WIDTH = (
-    max(len(label) for label in list(PROJECTS) + _MORE_LABELS) + OPTION_CONTENT_GUTTER
+    max(len(label) for label in list(PROJECTS) + _MORE_LABELS)
+    + (OPTION_HORIZONTAL_PADDING * 2)
+    + OPTION_CONTENT_GUTTER
 )
 
 
@@ -61,13 +65,23 @@ class ProjectPicker(Widget):
         display: block;
     }
 
+    #project-top-edge {
+        color: $INFO_BAR_BACKGROUND;
+        background: $SURFACE_BACKGROUND;
+    }
+
+    #project-bottom-edge {
+        color: $SURFACE_BACKGROUND;
+        background: $PAGE_BACKGROUND;
+    }
+
     #project-search-input {
         width: 100%;
         height: 1;
         background: transparent;
         border: none;
         color: $TEXT_PRIMARY;
-        padding: 0 1;
+        padding: 0 2;
     }
 
     #project-list {
@@ -86,7 +100,7 @@ class ProjectPicker(Widget):
         color: $TEXT_PRIMARY;
         text-align: left;
         content-align: left middle;
-        padding: 0 0;
+        padding: 0 1;
         margin: 0;
     }
     #project-options Button:hover,
@@ -101,44 +115,21 @@ class ProjectPicker(Widget):
         color: $PAGE_BACKGROUND;
     }
 
-    #project-options #more-trigger {
+    #project-separator {
         width: 100%;
         height: 1;
-        background: transparent;
-        border: none;
+        background: $SURFACE_BACKGROUND;
         color: $TEXT_MUTED;
-        text-align: left;
-        content-align: left middle;
-        padding: 0 0;
         margin: 0;
+        padding: 0 2;
     }
-    #project-options #more-trigger:hover {
-        background: $TEXT_PRIMARY;
-        color: $PAGE_BACKGROUND;
-    }
-
-    #more-options {
-        display: none;
-        height: auto;
-        padding: 0;
-    }
-    #more-options.open {
-        display: block;
-    }
-    #more-options Button {
+    #project-separator-line {
         width: 100%;
         height: 1;
-        background: transparent;
-        border: none;
-        color: $TEXT_PRIMARY;
-        text-align: left;
-        content-align: left middle;
-        padding: 0 0;
+        color: $TEXT_MUTED;
+        background: $SURFACE_BACKGROUND;
+        padding: 0;
         margin: 0;
-    }
-    #more-options Button:hover {
-        background: $TEXT_PRIMARY;
-        color: $PAGE_BACKGROUND;
     }
     """
     )
@@ -167,14 +158,19 @@ class ProjectPicker(Widget):
         with Container(id="project-drop"):
             yield Button("Work in a project", id="project-trigger")
             with Container(id="project-options"):
-                yield Input(placeholder="Search Project...", id="project-search-input")
+                yield HalfRowSpacer(id="project-top-edge")
+                yield Input(placeholder="Search projects...", id="project-search-input")
                 with Container(id="project-list"):
                     for proj in self._all_projects:
                         yield Button(proj, classes="project-item")
-                yield Button("Show more...", id="more-trigger")
-                with Container(id="more-options"):
-                    yield Button("Add new project", id="add-project-btn")
-                    yield Button("Don't work in a project", id="no-project-btn")
+                with Container(id="project-separator"):
+                    yield Static(
+                        "\u2500" * (PROJECT_OPTIONS_WIDTH - 4),
+                        id="project-separator-line",
+                    )
+                yield Button("Add new project", id="add-project-btn")
+                yield Button("Don't work in a project", id="no-project-btn")
+                yield HalfRowSpacer(id="project-bottom-edge")
 
     def _fit_trigger(self) -> None:
         drop = self.query_one("#project-drop", Container)
@@ -188,11 +184,6 @@ class ProjectPicker(Widget):
 
         if btn_id == "project-trigger":
             self._toggle_dropdown()
-            event.stop()
-            return
-
-        if btn_id == "more-trigger":
-            self._toggle_more()
             event.stop()
             return
 
@@ -245,18 +236,6 @@ class ProjectPicker(Widget):
         except Exception:
             pass
 
-    def _toggle_more(self) -> None:
-        more = self.query_one("#more-options", Container)
-        if more.has_class("open"):
-            more.remove_class("open")
-        else:
-            more.add_class("open")
-
     def _close_dropdown(self) -> None:
         options = self.query_one("#project-options", Container)
         options.remove_class("open")
-        try:
-            more = self.query_one("#more-options", Container)
-            more.remove_class("open")
-        except Exception:
-            pass
