@@ -70,13 +70,18 @@ class AgentTUIApp(App):
         width: 1fr;
         height: 1fr;
         min-width: 46;
+        padding: 0 3 0 0;
         align-horizontal: center;
+    }
+    #main-area.sidebar-visible {
+        padding: 0 3 0 3;
     }
 
     #project-title-wrap {
         width: 100%;
         height: auto;
         min-width: 44;
+        padding-left: 1;
         align-horizontal: center;
     }
 
@@ -102,7 +107,7 @@ class AgentTUIApp(App):
     #info-bar-shell {
         width: 100%;
         min-width: 44;
-        max-width: 75;
+        max-width: 78;
         height: auto;
     }
     #info-bar-shell.stretch {
@@ -121,6 +126,27 @@ class AgentTUIApp(App):
     }
     #info-bar > #project-picker {
         margin: 0;
+    }
+    #info-bar > #project-picker.hidden {
+        display: none;
+    }
+    #interrupt-hint {
+        display: none;
+        width: auto;
+        height: 1;
+        margin-left: 1;
+    }
+    #interrupt-hint.visible {
+        display: block;
+    }
+    #interrupt-key {
+        width: auto;
+        color: $TEXT_PRIMARY;
+    }
+    #interrupt-text {
+        width: auto;
+        color: $TEXT_MUTED;
+        margin-left: 1;
     }
     #info-bar > #context-label {
         width: 1fr;
@@ -146,7 +172,7 @@ class AgentTUIApp(App):
         width: 100%;
         height: 1fr;
         min-width: 46;
-        padding: 0;
+        padding: 0 1;
         align-horizontal: center;
         background: $PAGE_BACKGROUND;
     }
@@ -157,7 +183,7 @@ class AgentTUIApp(App):
         width: 100%;
         height: 1fr;
         min-width: 44;
-        max-width: 75;
+        max-width: 78;
     }
 
     #messages-view {
@@ -203,6 +229,9 @@ class AgentTUIApp(App):
                     with Vertical(id="info-bar-shell"):
                         with Horizontal(id="info-bar"):
                             yield ProjectPicker(id="project-picker")
+                            with Horizontal(id="interrupt-hint"):
+                                yield Label("esc", id="interrupt-key")
+                                yield Label("interrupt", id="interrupt-text")
                             yield Label("Context: 0.0k (0%)", id="context-label")
                         yield HalfRowSpacer(id="info-bar-bottom")
 
@@ -230,17 +259,20 @@ class AgentTUIApp(App):
     def toggle_sidebar(self) -> None:
         self.sidebar_visible = not self.sidebar_visible
         left_edge = self.query_one("#left-edge", Vertical)
+        main_area = self.query_one("#main-area", Vertical)
         sidebar = self.query_one("#sidebar", Sidebar)
         toggle = self.query_one("#sidebar-toggle", Static)
         if self.sidebar_visible:
             left_edge.remove_class("sidebar-hidden")
             left_edge.add_class("sidebar-visible")
+            main_area.add_class("sidebar-visible")
             sidebar.remove_class("sidebar-hidden")
             sidebar.add_class("sidebar-visible")
             toggle.update("= Sessions")
         else:
             left_edge.remove_class("sidebar-visible")
             left_edge.add_class("sidebar-hidden")
+            main_area.remove_class("sidebar-visible")
             sidebar.remove_class("sidebar-visible")
             sidebar.add_class("sidebar-hidden")
             toggle.update("=")
@@ -263,24 +295,31 @@ class AgentTUIApp(App):
         chat_input = self.query_one("#chat-input", ChatInput)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
         info_bar_shell = self.query_one("#info-bar-shell", Vertical)
+        project_picker = self.query_one("#project-picker", ProjectPicker)
+        interrupt_hint = self.query_one("#interrupt-hint", Horizontal)
         project_title = self.query_one("#project-title", Static)
         chat_input.chat_active = False
         chat_input.remove_class("stretch")
         info_bar_shell.remove_class("stretch")
+        project_picker.remove_class("hidden")
+        interrupt_hint.remove_class("visible")
         project_title.remove_class("hidden")
         messages_wrap.remove_class("visible")
         messages.clear()
         input_wrapper.add_class("welcome")
 
     def start_chat(self) -> None:
-        messages = self.query_one("#messages-view", ChatView)
         messages_wrap = self.query_one("#messages-wrap", Container)
         input_wrapper = self.query_one("#input-wrapper", Vertical)
         chat_input = self.query_one("#chat-input", ChatInput)
         info_bar_shell = self.query_one("#info-bar-shell", Vertical)
+        project_picker = self.query_one("#project-picker", ProjectPicker)
+        interrupt_hint = self.query_one("#interrupt-hint", Horizontal)
         project_title = self.query_one("#project-title", Static)
         project_title.add_class("hidden")
         messages_wrap.add_class("visible")
         input_wrapper.remove_class("welcome")
         chat_input.add_class("stretch")
         info_bar_shell.add_class("stretch")
+        project_picker.add_class("hidden")
+        interrupt_hint.add_class("visible")

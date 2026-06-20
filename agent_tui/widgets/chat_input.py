@@ -84,7 +84,7 @@ class ChatInput(Widget):
     ChatInput {
         width: 100%;
         min-width: 44;
-        max-width: 75;
+        max-width: 78;
         height: auto;
         padding: 0;
         margin: 0;
